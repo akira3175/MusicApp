@@ -11,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.magicmusic.R;
 
 public class MainActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

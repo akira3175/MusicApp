@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/Header"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:gravity="center_vertical"
+        >
+
+        <!-- Nút Back nằm ở bên trái -->
+        <ImageButton
+            android:id="@+id/image_button1"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/favorite_back_button"
+            android:src="@drawable/back_button"
+            android:scaleType="centerInside"
+            app:backgroundTint="@color/white"
+            tools:ignore="DuplicateSpeakableTextCheck"
+            />
+
+        <!-- Chữ Favorite nằm chính giữa -->
+        <TextView
+            android:id="@+id/text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/favorite_header"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/Navigation"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:gravity="center_vertical">
+
+        <!-- Switch nằm ở bên trái -->
+        <!-- Chữ "Downloaded" phía trên nút Switch bên trái -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginStart="10dp"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/favorite_downloaded"
+                android:textSize="11sp"
+                android:gravity="center" />
+
+            <Switch
+                android:id="@+id/favorite_switch"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+        </LinearLayout>
+
+        <!-- Button với ảnh và chữ PLAY nằm ở bên phải -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/play_material_button"
+            android:layout_width="150dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentEnd="true"
+            android:text="@string/favorite_play_button"
+            android:contentDescription="@string/favorite_play_button"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            app:icon="@drawable/play_button"
+            app:iconTint="@color/white"
+            app:backgroundTint="@color/orange"
+            app:cornerRadius="10dp"
+            app:iconPadding="0dp"
+            app:drawableStart="@drawable/play_button"
+            app:drawablePadding="0dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/List"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        >
+        <ScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/favorite_list"
+            />
+    </LinearLayout>
+
+</LinearLayout>
