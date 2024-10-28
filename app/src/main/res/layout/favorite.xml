@@ -91,9 +91,9 @@
             app:iconTint="@color/white"
             app:backgroundTint="@color/orange"
             app:cornerRadius="10dp"
-            app:iconPadding="0dp"
-            app:drawableStart="@drawable/play_button"
-            app:drawablePadding="0dp" />
+            app:iconPadding="8dp"
+            app:iconGravity="textStart" />
+
     </RelativeLayout>
 
     <LinearLayout
