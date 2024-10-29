@@ -23,7 +23,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ListMusicActivity extends AppCompatActivity {
-    private static final String CLIENT_ID = "ec0e93fa";
     private MediaPlayer mediaPlayer;
     private TextView songTitle;
     private Button playButton, pauseButton, stopButton;
@@ -45,7 +44,7 @@ public class ListMusicActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
-        Call<JamendoResponse> call = apiService.getTracks(CLIENT_ID, "json", 10);
+        Call<JamendoResponse> call = apiService.getTracks("json", 10);
 
         call.enqueue(new Callback<JamendoResponse>() {
             @Override
