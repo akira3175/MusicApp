@@ -21,6 +21,9 @@
             android:name=".GUI.PlayListActivity"
             android:exported="true" />
         <activity
+            android:name=".GUI.FavoriteActivity"
+            android:exported="true" />
+        <activity
             android:name=".GUI.MainActivity"
             android:exported="true">
             <intent-filter>
