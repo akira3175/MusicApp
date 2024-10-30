@@ -14,8 +14,6 @@ import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
-import com.example.magicmusic.API.ApiClient;
-import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.models.JamendoResponse;
 import java.util.List;
 import retrofit2.Call;
@@ -23,7 +21,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ListMusicActivity extends AppCompatActivity {
-    private static final String CLIENT_ID = "ec0e93fa";
+    public static final String CLIENT_ID = "ec0e93fa";
     private MediaPlayer mediaPlayer;
     private TextView songTitle;
     private Button playButton, pauseButton, stopButton;
