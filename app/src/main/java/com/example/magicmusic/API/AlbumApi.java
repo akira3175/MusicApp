@@ -11,6 +11,7 @@ public interface AlbumApi {
   Call<AlbumResponse> getAlbums(
           @Query("client_id") String clientId,
           @Query("format") String format,
-          @Query("limit") int limit
+          @Query("limit") int limit,
+          @Query("order") String order
   );
 }

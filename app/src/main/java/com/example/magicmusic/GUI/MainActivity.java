@@ -77,7 +77,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void fetchAndInflateAlbums() {
         AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
-        Call<AlbumResponse> call = apiService.getAlbums(CLIENT_ID, "json", 10);
+        Call<AlbumResponse> call = apiService.getAlbums(
+                CLIENT_ID,
+                "json",
+                10,
+                ""
+        );
 
         call.enqueue(new Callback<AlbumResponse>() {
             @Override
@@ -98,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Jamendo", "Track ID: " + album.getId());
                         Log.d("Jamendo", "Track Name: " + album.getName());
                         Log.d("Jamendo", "Artist: " + album.getArtist_name());
+                        Log.d("Jamendo", "Image: " + album.getImage());
                     }
                     Log.d("Jamendo", response.body().toString());
                 } else {

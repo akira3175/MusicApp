@@ -17,6 +17,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Nếu cần, có thể thêm các cài đặt cho debug build tại đây
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -42,4 +45,6 @@ dependencies {
     implementation libs.retrofit
     implementation libs.retrofit2.converter.gson
     implementation libs.material.v121
+    implementation libs.me.relex.circleindicator
+
 }
