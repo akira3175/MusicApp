@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">MagicMusic</string>
+    <string name="app_name"><b>MAGIC </b><font color="#919191">MUSIC</font></string>
     <string name="favorite_header">Favorite</string>
     <string name="favorite_back_button">back_button</string>
     <string name="favorite_downloaded">Downloaded</string>
     <string name="favorite_play_button">PLAY</string>
     <string name="favorite_list">List</string>
     <string name="favorite_empty_list">Không có bài hát nào được thêm vào mục Favorite</string>"
+    <string name="albumListTile">Albums</string>
 </resources>
