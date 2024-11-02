@@ -25,7 +25,8 @@
             android:contentDescription="@string/favorite_back_button"
             android:src="@drawable/back_button"
             android:scaleType="centerInside"
-            app:backgroundTint="@color/design_default_color_background"
+            app:backgroundTint="?android:attr/colorBackground"
+            app:tint="?attr/colorOnBackground"
             app:cornerRadius="10dp"
             tools:ignore="DuplicateSpeakableTextCheck"
             />
@@ -47,7 +48,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:layout_gravity="center_vertical">
+        android:gravity="center"
+        >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -55,7 +57,7 @@
             android:orientation="vertical"
             android:layout_gravity="center"
             android:layout_marginStart="10dp"
-            >
+            tools:ignore="RelativeOverlap">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -78,21 +80,20 @@
             android:id="@+id/play_material_button"
             android:layout_width="150dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="10dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:text="@string/favorite_play_button"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="9dp"
             android:contentDescription="@string/favorite_play_button"
-            android:textSize="16sp"
-            android:textColor="@color/white"
-            android:drawableStart="@drawable/play_button"
             android:drawablePadding="0dp"
-            app:icon="@drawable/play_button"
-            app:iconTint="@color/white"
+            android:text="@string/favorite_play_button"
+            android:textColor="@color/white"
+            android:textSize="16sp"
             app:backgroundTint="@color/orange"
             app:cornerRadius="10dp"
+            app:icon="@drawable/play_song_button"
             app:iconPadding="0dp"
-             />
+            app:iconTint="@color/white"
+            tools:ignore="TextContrastCheck" />
     </RelativeLayout>
 
     <LinearLayout
@@ -120,12 +121,25 @@
             android:fillViewport="true"
             >
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/scroll_view_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                />
+                >
+
+                <com.example.magicmusic.GUI.SongContentWidget
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="1dp" />
+
+                <com.example.magicmusic.GUI.SongPlayerWidget
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    />
+            </RelativeLayout>
 
         </ScrollView>
 

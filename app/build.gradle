@@ -37,7 +37,8 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    implementation libs.material.v121
     implementation libs.retrofit
     implementation libs.retrofit2.converter.gson
-    implementation libs.material.v121
+    implementation libs.logging.interceptor
 }
