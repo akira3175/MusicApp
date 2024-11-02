@@ -23,6 +23,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ListMusicActivity extends AppCompatActivity {
+    public static final String CLIENT_ID = "ec0e93fa";
     private MediaPlayer mediaPlayer;
     private TextView songTitle;
     private Button playButton, pauseButton, stopButton;
