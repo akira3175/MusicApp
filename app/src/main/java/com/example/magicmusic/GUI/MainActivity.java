@@ -2,6 +2,7 @@ package com.example.magicmusic.GUI;
 
 import static com.example.magicmusic.GUI.ListMusicActivity.CLIENT_ID;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -95,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
                         public void onItemClick(AlbumResponse.Album album) {
                             // Xử lý khi item được chọn
                             Toast.makeText(MainActivity.this, "Item clicked: " + album.getName(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
+                            startActivity(intent);
                         }
                     });
                     recyclerView.setAdapter(albumAdapter);
