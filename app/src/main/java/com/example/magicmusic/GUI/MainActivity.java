@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 CLIENT_ID,
                 "json",
                 10,
-                ""
+                "",
+                "Jamendo Music"
         );
 
         call.enqueue(new Callback<AlbumResponse>() {

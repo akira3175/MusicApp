@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.magicmusic.R;
 import com.example.magicmusic.models.JamendoResponse;
 
@@ -58,16 +60,23 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     static class SongViewHolder extends RecyclerView.ViewHolder {
         TextView songName;
         TextView artistName;
+        ImageView songImage;
 
         public SongViewHolder(@NonNull View itemView) {
             super(itemView);
-            songName = itemView.findViewById(R.id.song_title); // Kiểm tra ID
-            artistName = itemView.findViewById(R.id.song_artist); // Kiểm tra ID
+            songName = itemView.findViewById(R.id.song_title);
+            artistName = itemView.findViewById(R.id.song_artist);
+            songImage = itemView.findViewById(R.id.song_image);
         }
 
         public void bind(JamendoResponse.Track track) {
             songName.setText(track.getName());
             artistName.setText(track.getArtist_name());
+            Glide.with(itemView.getContext())
+                    .load(track.getImage()) // URL từ API
+                    .placeholder(android.R.drawable.ic_menu_gallery) // Ảnh chờ mặc định
+                    .error(android.R.drawable.ic_menu_report_image) // Ảnh lỗi mặc định
+                    .into(songImage);
         }
     }
 }
