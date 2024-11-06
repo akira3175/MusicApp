@@ -2,22 +2,13 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
+      <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="FavoriteActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="ListMusicActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="PlayListActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="SearchActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

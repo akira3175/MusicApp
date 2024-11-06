@@ -13,7 +13,8 @@ public interface AlbumApi {
           @Query("client_id") String clientId,
           @Query("format") String format,
           @Query("limit") int limit,
-          @Query("order") String order
+          @Query("order") String order,
+          @Query("search") String search
   );
 
 //  @GET("tracks") // Endpoint cho tracks

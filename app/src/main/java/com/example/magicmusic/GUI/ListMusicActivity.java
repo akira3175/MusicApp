@@ -313,7 +313,10 @@ public class ListMusicActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
-            mediaPlayer.release(); // Giải phóng tài nguyên khi không còn cần thiết
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
             mediaPlayer = null;
         }
     }
