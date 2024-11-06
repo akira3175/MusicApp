@@ -27,4 +27,9 @@ public interface JamendoApi {
             @Query("limit") int limit
     );
 
+    @GET("favorites")
+    Call<JamendoResponse> getFavorites(
+            @Query("format") String format,
+            @Query("limit") int limit
+    );
 }

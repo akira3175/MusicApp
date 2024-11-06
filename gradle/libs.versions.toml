@@ -2,28 +2,42 @@
 agp = "8.5.1"
 converterGson = "2.9.0"
 googleMaterial = "1.2.1"
+gradle = "8.1.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+library = "2.1.1"
+libraryVersion = "2.1.6"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.1.4"
 materialVersion = "1.3.0-rc01"
+meCircleindicator = "2.1.6"
 retrofit = "2.9.0"
+circleindicator = "2.1.6"
+circleindicatorVersion = "2.1.6"
+glide = "5.0.0-rc01"
 
 [libraries]
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+library = { module = "me.relex.circleindicator:library", version.ref = "library" }
+library-v216 = { module = "me.relex.circleindicator:library", version.ref = "libraryVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material-v121 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 material-v130rc01 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+me-relex-circleindicator = { module = "me.relex:circleIndicator", version.ref = "meCircleindicator" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+circleindicator = { group = "me.relex", name = "CircleIndicator", version.ref = "circleindicator" }
+relex-circleindicator = { group = "me.relex", name = "circleindicator", version.ref = "circleindicatorVersion" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version = "4.16.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

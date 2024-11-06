@@ -23,6 +23,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ListMusicActivity extends AppCompatActivity {
+    public static final String CLIENT_ID = "ec0e93fa";
     private MediaPlayer mediaPlayer;
     private TextView songTitle;
     private Button playButton, pauseButton, stopButton;
@@ -124,7 +125,10 @@ public class ListMusicActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
-            mediaPlayer.release(); // Giải phóng tài nguyên khi không còn cần thiết
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
             mediaPlayer = null;
         }
     }

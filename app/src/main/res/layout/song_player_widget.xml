@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@color/lightgray">
+
+    <LinearLayout
+        android:id="@+id/image_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        >
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:contentDescription="@string/favorite_empty_song_cover"
+            android:scaleType="fitCenter"
+            android:background="@color/orange"
+            app:srcCompat="@drawable/play_song_button"
+            app:tint="@color/white"
+            app:cornerRadius="10dp"
+            />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/song_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="17dp"
+            android:layout_alignParentTop="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:id="@+id/song_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="2dp"
+            android:layout_marginBottom="17dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
+
+        <ImageButton
+            android:id="@+id/play_back_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@string/favorite_play_button"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/slghtlylightgray"
+            app:srcCompat="@drawable/playback_button"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@string/favorite_play_button"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/slghtlylightgray"
+            app:srcCompat="@drawable/play_song_button"
+            tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/play_next_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@string/favorite_play_button"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/slghtlylightgray"
+            app:srcCompat="@drawable/playnext_button"
+            tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
+
+        <ImageButton
+            android:id="@+id/play_mode_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@string/favorite_play_button"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/slghtlylightgray"
+            app:srcCompat="@drawable/song_no_repeat"
+            tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
+
+    </LinearLayout>
+
+</LinearLayout>
