@@ -5,6 +5,6 @@
     <string name="favorite_downloaded">Downloaded</string>
     <string name="favorite_play_button">PLAY</string>
     <string name="favorite_list">List</string>
-    <string name="albumListTile">Albums</string>
-    <string name="copyright">Copyright © 2024</string>
+    <string name="listTitle">Playlists</string>
+    <string name="copyright"><i>Magicians Cop</i> Copyright © 2024</string>
 </resources>

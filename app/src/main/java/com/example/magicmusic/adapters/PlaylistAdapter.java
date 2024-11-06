@@ -56,10 +56,15 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
         onItemClickListener.onItemClick(playlist);
       }
     });
-//    Glide.with(context)
-//            .load(playlist.getImage())
-//            .placeholder(R.drawable.ic_music_note)
-//            .into(holder.backgroundImage);
+    ImageView[] imageViews = {holder.square1, holder.square2, holder.square3, holder.square4};
+    for (int i = 0; i < imageViews.length; i++) {
+      if(imageViews[i] != null) {
+        Glide.with(context)
+                .load(playlist.getTracks().get(i).getImage())
+                .placeholder(R.drawable.ic_music_note)
+                .into(imageViews[i]);
+      }
+    }
   }
 
 
@@ -71,11 +76,21 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
   public static class ViewHolder extends RecyclerView.ViewHolder {
     TextView title;
     ConstraintLayout backgroundImage;
+    ImageView square1, square2, square3, square4;
 
     public ViewHolder(View view) {
       super(view);
       title = view.findViewById(R.id.title);
       backgroundImage = view.findViewById(R.id.background_image);
+      square1 = view.findViewById(R.id.square1);
+      square2 = view.findViewById(R.id.square2);
+      square3 = view.findViewById(R.id.square3);
+      square4 = view.findViewById(R.id.square4);
     }
+  }
+
+  public void insertItem(Playlist playlist) {
+    dataList.add(playlist);
+    notifyItemInserted(dataList.size() - 1);
   }
 }

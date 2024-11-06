@@ -17,7 +17,7 @@
         >
 
         <!-- Square 1 -->
-        <View
+        <ImageView
             android:id="@+id/square1"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -29,7 +29,7 @@
             app:layout_constraintDimensionRatio="1:1" />
 
         <!-- Square 2 -->
-        <View
+        <ImageView
             android:id="@+id/square2"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -41,7 +41,7 @@
             app:layout_constraintDimensionRatio="1:1" />
 
         <!-- Square 3 -->
-        <View
+        <ImageView
             android:id="@+id/square3"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -53,7 +53,7 @@
             app:layout_constraintDimensionRatio="1:1" />
 
         <!-- Square 4 -->
-        <View
+        <ImageView
             android:id="@+id/square4"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -67,7 +67,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <!-- TextView ở phía trên cùng, bên trên background_image -->
+    <!-- TextImageView ở phía trên cùng, bên trên background_image -->
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
@@ -78,13 +78,13 @@
         android:textSize="24dp"
         android:fontFamily="sans-serif-medium"
         android:textStyle="bold"
-        android:text="This is a square TextView"
+        android:text="This is a square TextImageView"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/center_background"
+        android:background="@drawable/label_center_background"
         />
 
 

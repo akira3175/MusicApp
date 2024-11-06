@@ -60,15 +60,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //popular playlistID
-        popularPlaylistIds.add(500608490);
-        popularPlaylistIds.add(500608900);
-        popularPlaylistIds.add(500608899);
-        popularPlaylistIds.add(500608901);
-        popularPlaylistIds.add(500608471);
-        popularPlaylistIds.add(500607433);
-        popularPlaylistIds.add(500606825);
-        popularPlaylistIds.add(500605606);
-        popularPlaylistIds.add(500605176);
+        popularPlaylistIds.addAll(List.of(500608490, 500608900, 500608899
+                , 500608901, 500608471, 500607433, 500606825, 500605606, 500605176, 500602528, 500599669));
 
 
         //slider
@@ -138,6 +131,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Danh sách để lưu tất cả các playlist đã tải về
         List<Playlist> allPlaylists = new ArrayList<>();
+        // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
+        PlaylistAdapter playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Playlist playlist) {
+                Log.d("Jamendo", "fetching playlist: " + playlist.getId());
+                Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
+                intent.putExtra("playlistId", playlist.getId());
+                startActivity(intent);
+            }
+        });
+        recyclerView.setAdapter(playlistAdapter);
 
         for (int id : popularPlaylistIds) {
             Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 4, id);
@@ -148,20 +152,9 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         List<Playlist> playlists = response.body().getResults();
 
-                        // Thêm các playlist vào danh sách allPlaylists
-                        allPlaylists.addAll(playlists);
-
-                        // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
-                        PlaylistAdapter playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(Playlist playlist) {
-                                Log.d("Jamendo", "fetching playlist: " + playlist.getId());
-                                Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
-                                intent.putExtra("playlistId", playlist.getId());
-                                startActivity(intent);
-                            }
-                        });
-                        recyclerView.setAdapter(playlistAdapter);
+                        for(Playlist playlist: playlists) {
+                            playlistAdapter.insertItem(playlist);
+                        }
 
                         for (Playlist playlist : playlists) {
                             Log.d("Jamendo", "Playlist ID: " + playlist.getId());
@@ -178,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+
     }
 
 }
