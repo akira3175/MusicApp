@@ -26,6 +26,9 @@ public class JamendoResponse {
         @SerializedName("audio")
         private String audio; // Thêm thuộc tính preview
 
+        @SerializedName("image")
+        private String image;
+
         public int getId() {
             return id;
         }
@@ -40,6 +43,10 @@ public class JamendoResponse {
 
         public String getAudio() { // Getter cho audio
             return audio;
+        }
+
+        public String getImage() {
+            return image;
         }
     }
 

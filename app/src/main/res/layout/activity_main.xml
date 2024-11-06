@@ -56,17 +56,18 @@
             </androidx.viewpager2.widget.ViewPager2>
             <me.relex.circleindicator.CircleIndicator3
                 android:id="@+id/indicator"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="30dp"
                 app:ci_height="2.5dp"
                 app:ci_width="10dp"
                 app:ci_drawable="@drawable/indicator"
                 android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"/>
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/label_bottom_background"/>
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/albums_title"
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/container_slider"
@@ -77,31 +78,34 @@
 
         <!--    &lt;!&ndash; Danh sách nhạc &ndash;&gt;-->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/albums_list"
+                android:id="@+id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/albums_title"
+                android:layout_below="@id/title"
                 android:paddingHorizontal="10dp"
                 android:layout_marginTop="10dp"
                 android:nestedScrollingEnabled="false" />
 
-        <LinearLayout
-            android:id="@+id/footer"
+        <!-- res/layout/footer_simple.xml -->
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/albums_list"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp">
+            android:background="#000000"
+            android:padding="16dp"
+            android:id="@+id/footer"
+            android:layout_below="@id/list">
 
             <TextView
+                android:id="@+id/footer_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="It's footer, bea"
-                android:textSize="24sp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                />
-        </LinearLayout>
+                android:text="@string/copyright"
+                android:textColor="@android:color/white"
+                android:layout_centerHorizontal="true"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
 
     </RelativeLayout>
 

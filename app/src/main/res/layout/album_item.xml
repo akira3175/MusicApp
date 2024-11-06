@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="8dp">
+    android:padding="8dp"
+
+    >
 
     <!-- ImageView là nền, có tỷ lệ 1:1 để đảm bảo hình vuông -->
     <ImageView
@@ -15,7 +17,8 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <!-- TextView ở phía trên cùng, bên trên background_image -->
     <TextView
@@ -23,13 +26,18 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
+        android:textAllCaps="true"
         android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
         android:text="This is a square TextView"
         android:gravity="center_horizontal"
         app:layout_constraintTop_toTopOf="@id/background_image"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/label_top_background"
+        />
 
     <!-- TextView ở phía dưới cùng, bên trên background_image -->
     <TextView
@@ -37,12 +45,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
         android:text="This is a square TextView"
         android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="@id/background_image"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/label_bottom_background"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

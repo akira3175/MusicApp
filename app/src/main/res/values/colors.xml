@@ -5,4 +5,7 @@
     <color name="orange">#FF3C00</color>
     <color name="primary">#0000FF</color>">
     <color name="red">#FF0000</color>
+    <color name="colorItemPressed">#E0E0E0</color> <!-- Màu khi nhấn -->
+    <color name="colorItemSelected">#D0D0D0</color> <!-- Màu khi chọn -->
+    <color name="colorItemDefault">#FFFFFF</color> <!-- Màu mặc định -->
 </resources>
