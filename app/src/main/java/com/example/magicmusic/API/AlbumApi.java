@@ -17,6 +17,14 @@ public interface AlbumApi {
           @Query("search") String search
   );
 
+  @GET("playlists/tracks")
+  Call<TrackResponse> getTracks(
+          @Query("client_id") String clientId,
+          @Query("format") String format,
+          @Query("limit") int limit,
+          @Query("id") int id
+  );
+
 //  @GET("tracks") // Endpoint cho tracks
 //  Call<TrackResponse> getTracks(
 //          @Query("client_id") String clientId,

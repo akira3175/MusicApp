@@ -45,7 +45,9 @@ public class JamendoResponse {
             return audio;
         }
 
-        public String getImage() { return image; }
+        public String getImage() {
+            return image;
+        }
     }
 
 }

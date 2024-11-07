@@ -7,6 +7,9 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -17,6 +20,11 @@ public class ApiClient {
 
     public static Retrofit getClient() {
         if (retrofit == null) {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS) // Thời gian chờ kết nối
+                    .writeTimeout(30, TimeUnit.SECONDS)   // Thời gian chờ ghi dữ liệu
+                    .readTimeout(30, TimeUnit.SECONDS)    // Thời gian chờ đọc dữ liệu
+                    .build();
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(new Interceptor() {
                         @Override
@@ -40,6 +48,7 @@ public class ApiClient {
                     .build();
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(okHttpClient)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

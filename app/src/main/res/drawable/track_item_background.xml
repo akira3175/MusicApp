@@ -1,0 +1,12 @@
+<!-- res/drawable/song_item_background.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Màu khi item được nhấn -->
+    <item android:state_pressed="true" android:drawable="@color/colorItemPressed" />
+
+    <!-- Màu khi item được chọn hoặc kích hoạt -->
+    <item android:state_selected="true" android:drawable="@color/colorItemSelected" />
+    <item android:state_activated="true" android:drawable="@color/colorItemSelected" />
+
+    <!-- Màu mặc định cho item -->
+    <item android:drawable="@color/colorItemDefault" />
+</selector>
