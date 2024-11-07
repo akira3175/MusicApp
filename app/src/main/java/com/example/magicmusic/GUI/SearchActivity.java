@@ -19,6 +19,7 @@ import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.MusicAdapter;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Track;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity";
     private RecyclerView recyclerView;
     private MusicAdapter musicAdapter;
-    private List<JamendoResponse.Track> trackList;
+    private List<Track> trackList;
     private ImageButton playButton;
     private TextView songTitle;
 
@@ -77,7 +78,7 @@ public class SearchActivity extends AppCompatActivity {
             public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     trackList = response.body().getResults();
-                    for (JamendoResponse.Track track : trackList) {
+                    for (Track track : trackList) {
                         Log.d("Jamendo", "Track ID: " + track.getId());
                         Log.d("Jamendo", "Track Name: " + track.getName());
                         Log.d("Jamendo", "Artist: " + track.getArtist_name());
@@ -134,7 +135,7 @@ public class SearchActivity extends AppCompatActivity {
                     public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             trackList = response.body().getResults();
-                            for (JamendoResponse.Track track : trackList) {
+                            for (Track track : trackList) {
                                 Log.d("Jamendo", "Track ID: " + track.getId());
                                 Log.d("Jamendo", "Track Name: " + track.getName());
                                 Log.d("Jamendo", "Artist: " + track.getArtist_name());

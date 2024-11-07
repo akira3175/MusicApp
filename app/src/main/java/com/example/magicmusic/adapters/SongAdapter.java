@@ -13,15 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.magicmusic.R;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Track;
 
 import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
-    private List<JamendoResponse.Track> trackList;
+    private List<Track> trackList;
     private OnItemClickListener onItemClickListener;
     private Context context;
 
-    public SongAdapter(Context context, List<JamendoResponse.Track> trackList) {
+    public SongAdapter(Context context, List<Track> trackList) {
         this.context = context;
         this.trackList = trackList;
     }
@@ -35,7 +36,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-        JamendoResponse.Track track = trackList.get(position);
+        Track track = trackList.get(position);
         holder.bind(track);
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
@@ -54,7 +55,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
     public interface OnItemClickListener {
-        void onItemClick(JamendoResponse.Track track);
+        void onItemClick(Track track);
     }
 
     static class SongViewHolder extends RecyclerView.ViewHolder {
@@ -69,7 +70,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             songImage = itemView.findViewById(R.id.song_image);
         }
 
-        public void bind(JamendoResponse.Track track) {
+        public void bind(Track track) {
             songName.setText(track.getName());
             artistName.setText(track.getArtist_name());
             Glide.with(itemView.getContext())

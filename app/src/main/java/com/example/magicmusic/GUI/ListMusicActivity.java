@@ -1,5 +1,6 @@
 package com.example.magicmusic.GUI;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
@@ -22,6 +25,9 @@ import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.models.AlbumTrackList;
 import com.example.magicmusic.models.FavoriteTrackList;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Track;
+import com.example.magicmusic.models.TracksFromPlaylistResponse;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +41,11 @@ public class ListMusicActivity extends AppCompatActivity {
     public static final String CLIENT_ID = "ec0e93fa";
     private MediaPlayer mediaPlayer;
     private TextView songTitle;
+//    private ImageButton playButton, pauseButton, stopButton;
+    private String currentSongUrl;
+    private RecyclerView recyclerView;
     private SongAdapter songAdapter;
-    private List<JamendoResponse.Track> trackList;
+    private List<Track> trackList;
     private RelativeLayout listContent;
     private SongPlayerWidget songPlayerWidget;
     private LinearLayout scrollViewContainer;
@@ -47,7 +56,8 @@ public class ListMusicActivity extends AppCompatActivity {
     private ImageButton loopButton;
     private int playFunction = 0;
     private int loopFunction = 1;
-    private String currentSongUrl;
+//    private String currentSongUrl;
+//    private List<JamendoResponse.Track> trackList;  // Use Track from TracksFromPlaylistResponse
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +73,13 @@ public class ListMusicActivity extends AppCompatActivity {
             public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     trackList = response.body().getResults();
-                    for (JamendoResponse.Track track : trackList) {
+                    for (Track track : trackList) {
                         Log.d("Jamendo", "Track ID: " + track.getId());
                         Log.d("Jamendo", "Track Name: " + track.getName());
                         Log.d("Jamendo", "Artist: " + track.getArtist_name());
                         Log.d("Jamendo", "Preview URL: " + track.getAudio()); // Kiểm tra URL preview
                         albumTrackLists.add(new AlbumTrackList(track.getAudio(), track.getName(), track.getArtist_name(), null, true, false));
+                        Log.d("Jamendo", "Preview URL: " + track.getAudio());  // Check preview URL
                     }
                     // Cập nhật giao diện người dùng
                     songAdapter = new SongAdapter(ListMusicActivity.this, trackList);
@@ -276,6 +287,8 @@ public class ListMusicActivity extends AppCompatActivity {
                             break;
                     }
                 });
+                mediaPlayer.prepareAsync();  // Prepare the song
+                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
             } catch (Exception e) {
                 Log.e("MediaPlayer", "Error setting data source", e);
             }
@@ -306,7 +319,7 @@ public class ListMusicActivity extends AppCompatActivity {
 
     public void setCurrentSong(String url, String name) {
         currentSongUrl = url;
-        songTitle.setText(name); // Cập nhật tên bài hát
+        songTitle.setText(name);  // Update song title
     }
 
     @Override

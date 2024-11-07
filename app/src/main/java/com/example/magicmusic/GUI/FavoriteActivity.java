@@ -21,6 +21,7 @@ import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.models.FavoriteTrackList;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Track;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class FavoriteActivity extends AppCompatActivity {
     //Class Objects
     private MediaPlayer mediaPlayer;
     private SongAdapter songAdapter;
-    private List<JamendoResponse.Track> trackList;
+    private List<Track> trackList;
     private ArrayList<FavoriteTrackList> favoriteTrackLists = new ArrayList<>();
     private int playFunction = 0;
     private int loopFunction = 1;
@@ -64,7 +65,7 @@ public class FavoriteActivity extends AppCompatActivity {
             public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     trackList = response.body().getResults();
-                    for (JamendoResponse.Track track : trackList) {;
+                    for (Track track : trackList) {;
                         Log.d("Jamendo", "Track ID: " + track.getId());
                         Log.d("Jamendo", "Track Name: " + track.getName());
                         Log.d("Jamendo", "Artist: " + track.getArtist_name());

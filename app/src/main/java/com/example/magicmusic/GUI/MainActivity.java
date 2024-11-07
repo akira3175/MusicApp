@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.magicmusic.API.AlbumApi;
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.API.PlaylistAPI;
