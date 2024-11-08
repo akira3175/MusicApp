@@ -16,6 +16,7 @@ import com.example.magicmusic.R;
 import com.example.magicmusic.models.JamendoResponse;
 import com.example.magicmusic.models.Track;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHolder> {
@@ -78,5 +79,10 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
   @Override
   public int getItemCount() {
     return trackList.size();
+  }
+
+  public void addItem(Track track) {
+    trackList.add(track);
+    notifyItemInserted(trackList.size()-1);
   }
 }

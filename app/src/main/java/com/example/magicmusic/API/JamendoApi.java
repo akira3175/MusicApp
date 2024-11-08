@@ -1,6 +1,7 @@
 package com.example.magicmusic.API;
 
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
 import com.example.magicmusic.models.TracksFromPlaylistResponse;
 
@@ -33,6 +34,21 @@ public interface JamendoApi {
     Call<PlaylistResponse> getPlaylists(
             @Query("format") String format,
             @Query("limit") int limit
+    );
+
+    @GET("playlists/tracks")
+    Call<PlaylistResponse> getPlaylistTracks(
+            @Query("format") String format,
+            @Query("id") String playlistId,
+            @Query("limit") int limit
+    );
+
+    @GET("playlists/tracks")
+    Call<PlaylistResponse> getPlaylistTracks(
+            @Query("format") String format,
+            @Query("id") String playlistId,
+            @Query("limit") int limit,
+            @Query("offset") int offset
     );
 
     @GET("favorites")

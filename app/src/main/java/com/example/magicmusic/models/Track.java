@@ -2,6 +2,10 @@ package com.example.magicmusic.models;
 
 import com.google.gson.annotations.SerializedName;
 
+/*
+ *   author: truong
+ * */
+
 public class Track {
   @SerializedName("id")
   private int id;
