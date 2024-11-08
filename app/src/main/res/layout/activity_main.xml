@@ -95,7 +95,8 @@
             android:background="#000000"
             android:padding="16dp"
             android:id="@+id/footer"
-            android:layout_below="@id/list">
+            android:layout_below="@id/list"
+            android:layout_marginTop="16dp">
 
             <TextView
                 android:id="@+id/footer_text"
@@ -104,7 +105,8 @@
                 android:text="@string/copyright"
                 android:textColor="@android:color/white"
                 android:layout_centerHorizontal="true"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                />
 
         </RelativeLayout>
 
