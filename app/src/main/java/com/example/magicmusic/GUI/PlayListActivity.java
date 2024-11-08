@@ -14,7 +14,9 @@ import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
+import com.example.magicmusic.models.Track;
 
 import java.util.List;
 
@@ -35,17 +37,17 @@ public class PlayListActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<PlaylistResponse.Playlist> playlists = response.body().getResults();
+                    List<Playlist> playlists = response.body().getResults();
 
                     if (playlists != null && !playlists.isEmpty()) {
-                        for (PlaylistResponse.Playlist playlist : playlists) {
+                        for (Playlist playlist : playlists) {
                             Log.d("Jamendo", "Playlist ID: " + playlist.getId());
                             Log.d("Jamendo", "Playlist Name: " + playlist.getName());
-                            Log.d("Jamendo", "Track Count: " + playlist.getTrackCount());
-                            List<JamendoResponse.Track> tracks = playlist.getTracks(); // Lấy danh sách track
+//                            Log.d("Jamendo", "Track Count: " + playlist.getTrackCount());
+                            List<Track> tracks = playlist.getTracks(); // Lấy danh sách track
 
                             if (tracks != null && !tracks.isEmpty()) { // Thật ra thì méo có Track trong api này
-                                for (JamendoResponse.Track track : tracks) {
+                                for (Track track : tracks) {
                                     Log.d("Jamendo", "Track ID: " + track.getId());
                                     Log.d("Jamendo", "Track Name: " + track.getName());
                                     Log.d("Jamendo", "Artist: " + track.getArtist_name());

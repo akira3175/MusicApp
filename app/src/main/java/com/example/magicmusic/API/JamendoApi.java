@@ -2,6 +2,7 @@ package com.example.magicmusic.API;
 
 import com.example.magicmusic.models.JamendoResponse;
 import com.example.magicmusic.models.PlaylistResponse;
+import com.example.magicmusic.models.TracksFromPlaylistResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -11,6 +12,13 @@ public interface JamendoApi {
     @GET("tracks")
     Call<JamendoResponse> getTracks(
             @Query("format") String format,
+            @Query("limit") int limit
+    );
+
+    @GET("playlists/tracks")
+    Call<TracksFromPlaylistResponse> getTracksFromPlaylist(
+            @Query("format") String format,
+            @Query("id") String playlistId,
             @Query("limit") int limit
     );
 

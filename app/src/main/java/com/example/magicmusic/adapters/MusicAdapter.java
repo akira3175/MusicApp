@@ -10,16 +10,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.magicmusic.R;
 import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Track;
 
 import java.util.List;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHolder> {
 
-    private List<JamendoResponse.Track> trackList;
+    private List<Track> trackList;
     private MusicAdapter.OnItemClickListener onItemClickListener;
     private Context context;
 
-    public MusicAdapter(Context context, List<JamendoResponse.Track> trackList) {
+    public MusicAdapter(Context context, List<Track> trackList) {
         this.context = context;
         this.trackList = trackList;
     }
@@ -33,7 +34,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     @Override
     public void onBindViewHolder(MusicViewHolder holder, int position) {
-        JamendoResponse.Track track = trackList.get(position);
+        Track track = trackList.get(position);
         holder.trackName.setText(track.getName());
         holder.artistName.setText(track.getArtist_name());
         holder.itemView.setOnClickListener(v -> {
@@ -53,7 +54,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
     }
 
     public interface OnItemClickListener {
-        void onItemClick(JamendoResponse.Track track);
+        void onItemClick(Track track);
     }
 
     public static class MusicViewHolder extends RecyclerView.ViewHolder {
