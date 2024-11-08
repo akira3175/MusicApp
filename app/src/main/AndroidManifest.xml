@@ -15,6 +15,15 @@
         android:theme="@style/Theme.MagicMusic"
         tools:targetApi="31">
         <activity
+            android:name=".GUI.SearchActivity"
+            android:exported="true" />
+        <activity
+            android:name=".GUI.PlayListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".GUI.FavoriteActivity"
+            android:exported="true" />
+        <activity
             android:name=".GUI.MainActivity"
             android:exported="true">
             <intent-filter>
@@ -23,7 +32,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GUI.ListMusicActivity" android:exported="true">
+        <activity
+            android:name=".GUI.ListMusicActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
