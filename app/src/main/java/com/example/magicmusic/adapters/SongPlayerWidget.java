@@ -2,11 +2,14 @@ package com.example.magicmusic.adapters;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.magicmusic.R;
 
 public class SongPlayerWidget extends LinearLayout {
@@ -38,6 +41,21 @@ public class SongPlayerWidget extends LinearLayout {
         songArtist.setSelected(true); // Bắt buộc cần để marquee hoạt động
         songArtist.requestFocus();
     }
+
+    public void setImage(String artistImageUrl) {
+        if (artistImageUrl != null && !artistImageUrl.isEmpty()) {
+            ImageView songImageView = findViewById(R.id.song_image);
+
+            Glide.with(this)
+                    .load(artistImageUrl)
+                    .placeholder(R.drawable.ic_music_note)
+                    .into(songImageView);
+            Log.d("Image Ok", "Artist Image URL is not null or empty");
+        } else {
+            Log.e("Image Error", "Artist Image URL is null or empty");
+        }
+    }
+
 
     public void setPlayButtonState(int state) {
         ImageButton playButton = findViewById(R.id.play_button);
@@ -72,6 +90,15 @@ public class SongPlayerWidget extends LinearLayout {
         setPlayButtonState(playButtonState);
         setLoopButtonState(loopButtonState);
     }
+
+    public void setSongPlayerView(String title, String artist, String image, int playButtonState, int loopButtonState) {
+        setSongName(title);
+        setSongArtist(artist);
+        setImage(image);
+        setPlayButtonState(playButtonState);
+        setLoopButtonState(loopButtonState);
+    }
+
 
     public String getSongName() {
         TextView str = findViewById(R.id.song_title);

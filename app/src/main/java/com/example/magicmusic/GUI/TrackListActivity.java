@@ -28,59 +28,59 @@ import retrofit2.Response;
 
 public class TrackListActivity extends AppCompatActivity {
 
-  RecyclerView trackList;
+    RecyclerView trackList;
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_track_list);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_track_list);
 
-    trackList = findViewById(R.id.song_list);
-    trackList.setLayoutManager(new LinearLayoutManager(this));
+        trackList = findViewById(R.id.song_list);
+        trackList.setLayoutManager(new LinearLayoutManager(this));
 
-    fetchAndInflateTracks();
-  }
+        fetchAndInflateTracks();
+    }
 
-  public void fetchAndInflateTracks() {
-    Intent intent = getIntent();
-    int playlistId = intent.getIntExtra("playlistId", 500089797);
+    public void fetchAndInflateTracks() {
+        Intent intent = getIntent();
+        int playlistId = intent.getIntExtra("playlistId", 500089797);
 
-    AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
-    Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
-    Log.d("call: ", call.request().url().toString());
+        AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
+        Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+        Log.d("call: ", call.request().url().toString());
 
-    call.enqueue(new Callback<TrackResponse>() {
-      @Override
-      public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
-        if (response.isSuccessful() && response.body() != null) {
-          List<Playlist> playlists = response.body().getResults();
-          Log.d("Results size", "List Size: " + playlists.size());
-          List<Track> tracks = new ArrayList<>();
-          if(!playlists.isEmpty()) {
-            tracks.addAll(playlists.get(0).getTracks());
-          }
-
-          Log.d("tracks size", "Track List Size: " + tracks.size());
-          TrackAdapter trackAdapter = new TrackAdapter(tracks, TrackListActivity.this, new TrackAdapter.OnItemClickListener() {
+        call.enqueue(new Callback<TrackResponse>() {
             @Override
-            public void onItemClick(Track track) {
-              Toast.makeText(TrackListActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
-            }
-          });
-          trackList.setAdapter(trackAdapter);
-          Log.d("Fetched: ", response.body().toString());
-        } else {
-          Log.e("Jamendo", "No tracks found or response failed.");
-        }
-      }
+            public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Playlist> playlists = response.body().getResults();
+                    Log.d("Results size", "List Size: " + playlists.size());
+                    List<Track> tracks = new ArrayList<>();
+                    if(!playlists.isEmpty()) {
+                        tracks.addAll(playlists.get(0).getTracks());
+                    }
 
-      @Override
-      public void onFailure(Call<TrackResponse> call, Throwable t) {
-        Log.e("Jamendo", "Error: " + t.getMessage());
-        t.printStackTrace();
-      }
-    });
-  }
+                    Log.d("tracks size", "Track List Size: " + tracks.size());
+                    TrackAdapter trackAdapter = new TrackAdapter(tracks, TrackListActivity.this, new TrackAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Track track) {
+                            Toast.makeText(TrackListActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    trackList.setAdapter(trackAdapter);
+                    Log.d("Fetched: ", response.body().toString());
+                } else {
+                    Log.e("Jamendo", "No tracks found or response failed.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TrackResponse> call, Throwable t) {
+                Log.e("Jamendo", "Error: " + t.getMessage());
+                t.printStackTrace();
+            }
+        });
+    }
 
 
 }

@@ -6,14 +6,14 @@ public class AlbumTrackList {
     private String currentSongUrl;
     private String currentSongName;
     private String currentSongArtist;
-    private Image currentSongImage;
+    private String currentSongImage;
     private boolean isFavorite;
     private boolean isDownloaded;
 
     public AlbumTrackList(String currentSongUrl,
                           String currentSongName,
                           String currentSongArtist,
-                          Image currentSongImage,
+                          String currentSongImage,
                           boolean isFavorite,
                           boolean isDownloaded) {
         this.currentSongUrl = currentSongUrl;
@@ -44,7 +44,7 @@ public class AlbumTrackList {
         return this.isDownloaded;
     }
 
-    public Image getCurrentSongImage() {
+    public String getCurrentSongImage() {
         return this.currentSongImage;
     }
 
@@ -60,7 +60,7 @@ public class AlbumTrackList {
         this.currentSongArtist = currentSongArtist;
     }
 
-    public void setCurrentSongImage(Image currentSongImage) {
+    public void setCurrentSongImage(String currentSongImage) {
         this.currentSongImage = currentSongImage;
     }
 
