@@ -2,15 +2,19 @@ package com.example.magicmusic.adapters;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.magicmusic.R;
 
 public class SongContentWidget extends LinearLayout {
     private String songUrl;
+    private String songImageUrl;
 
     public SongContentWidget(Context context) {
         super(context);
@@ -48,6 +52,21 @@ public class SongContentWidget extends LinearLayout {
         songDuration.setText(minute + ':' + sec);
     }
 
+    public void setSongImageUrl(String artistImageUrl) {
+        if (artistImageUrl != null && !artistImageUrl.isEmpty()) {
+            ImageView songImage = findViewById(R.id.image_view);
+            this.songImageUrl = artistImageUrl;
+
+            Glide.with(this)
+                    .load(artistImageUrl)
+                    .placeholder(R.drawable.ic_music_note)
+                    .into(songImage);
+            Log.d("Image Ok", "Artist Image URL is not null or empty");
+        } else {
+            Log.e("Image Error", "Artist Image URL is null or empty");
+        }
+    }
+
     public void setSongFavorite(int isFavorite) {
         ImageButton favButton = findViewById(R.id.fav_button);
         if (isFavorite == 1) {
@@ -74,6 +93,10 @@ public class SongContentWidget extends LinearLayout {
 
     public String getSongUrl() {
         return this.songUrl;
+    }
+
+    public String getSongImageUrl() {
+        return this.songImageUrl;
     }
 
     public String getSongName() {

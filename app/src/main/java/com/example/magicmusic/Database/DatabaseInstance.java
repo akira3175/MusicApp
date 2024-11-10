@@ -13,6 +13,7 @@ public class DatabaseInstance {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FavoriteTrackDatabase.class, "FavoriteTrackDatabase")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }
