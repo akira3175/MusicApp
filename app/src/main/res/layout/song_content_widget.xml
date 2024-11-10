@@ -111,12 +111,12 @@
 
         <ImageButton
             android:id="@+id/download_button"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:contentDescription="@string/favorite_empty_list"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_launcher_background"
+            android:scaleType="centerCrop"
+            app:backgroundTint="?android:attr/colorBackground"
+            app:srcCompat="@drawable/not_download"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
 

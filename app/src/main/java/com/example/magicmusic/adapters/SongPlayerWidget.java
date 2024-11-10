@@ -60,9 +60,9 @@ public class SongPlayerWidget extends LinearLayout {
             case 2: // Nút Repeat
                 loopButton.setImageResource(R.drawable.song_repeat);
                 break;
-                case 3: // Nút Shuffle
+            case 3: // Nút Shuffle
                 loopButton.setImageResource(R.drawable.song_shuffle);
-                    break;
+                break;
         }
     }
 
@@ -81,26 +81,6 @@ public class SongPlayerWidget extends LinearLayout {
     public String getSongArtist() {
         TextView str = findViewById(R.id.song_artist);
         return str.getText().toString();
-    }
-
-    public int getPlayButtonState() {
-        ImageButton btn = findViewById(R.id.play_button);
-        if (btn.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.play_song_button).getConstantState()) {
-            return 1;
-        } else {
-            return 2;
-        }
-    }
-
-    public int getLoopButtonState() {
-        ImageButton btn = findViewById(R.id.play_mode_button);
-        if (btn.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.song_no_repeat).getConstantState()) {
-            return 1;
-        } else if (btn.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.song_repeat).getConstantState()) {
-            return 2;
-        } else {
-            return 3;
-        }
     }
 
     public void init(Context context) {

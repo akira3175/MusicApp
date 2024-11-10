@@ -58,7 +58,6 @@
             android:orientation="vertical"
             android:layout_gravity="center"
             android:layout_marginStart="10dp"
-            android:visibility="gone"
             tools:ignore="RelativeOverlap"
             >
 
@@ -107,15 +106,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.8"
-        android:layout_gravity="start"
         android:orientation="vertical"
         >
 
         <TextView
             android:id="@+id/scroll_view_notify"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:gravity="center"
             android:textSize="14sp"
             />
 

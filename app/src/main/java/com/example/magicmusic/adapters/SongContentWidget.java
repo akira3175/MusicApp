@@ -41,17 +41,30 @@ public class SongContentWidget extends LinearLayout {
         songArtist.requestFocus();
     }
 
-    public void setSongDuration(String duration) {
+    public void setSongDuration(int duration) {
         TextView songDuration = findViewById(R.id.song_duration);
-        songDuration.setText(duration);
+        int minute = duration / 1000 / 60;
+        int sec = duration / 1000 % 60;
+        songDuration.setText(minute + ':' + sec);
     }
 
-    public void setSongFavorite(boolean isFavorite) {
+    public void setSongFavorite(int isFavorite) {
         ImageButton favButton = findViewById(R.id.fav_button);
-        if (isFavorite) {
+        if (isFavorite == 1) {
             favButton.setImageResource(R.drawable.song_hearted);
         } else {
             favButton.setImageResource(R.drawable.song_unhearted);
+        }
+    }
+
+    public void setSongDownloaded(boolean isDownloaded) {
+        ImageButton downloadButton = findViewById(R.id.download_button);
+        if (isDownloaded) {
+            downloadButton.setImageResource(R.drawable.downloaded);
+            downloadButton.setClickable(false);
+        } else {
+            downloadButton.setImageResource(R.drawable.not_download);
+            downloadButton.setClickable(true);
         }
     }
 
@@ -78,9 +91,12 @@ public class SongContentWidget extends LinearLayout {
         return songDuration.getText().toString();
     }
 
-    public boolean getSongFavorite() {
-        ImageButton favButton = findViewById(R.id.fav_button);
-        return favButton.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.song_hearted).getConstantState();
+    public ImageButton getSongFavoriteButton() {
+        return findViewById(R.id.fav_button);
+    }
+
+    public ImageButton getSongDownloadedButton() {
+        return findViewById(R.id.download_button);
     }
 
     public void init(Context context) {
