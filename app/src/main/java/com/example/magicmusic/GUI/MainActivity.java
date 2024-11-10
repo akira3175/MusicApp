@@ -1,6 +1,5 @@
 package com.example.magicmusic.GUI;
 
-import static com.example.magicmusic.GUI.ListMusicActivity.CLIENT_ID;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,7 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final String CLIENT_ID = "ec0e93fa";
     ViewPager2 viewPager;
     List<Integer> imageList;
     RecyclerView recyclerView;
@@ -87,44 +86,44 @@ public class MainActivity extends AppCompatActivity {
         fetchPlaylistsByIds(popularPlaylistIds);
     }
 
-    public void fetchAndInflate() {
-        PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
-        Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 10, null);
-        Log.d("call: ", call.request().url().toString());
-        call.enqueue(new Callback<PlaylistResponse>() {
-            @Override
-            public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    playlistList = response.body().getResults();
-                    // Cập nhật giao diện người dùng
-                    PlaylistAdapter playlistAdapter = new PlaylistAdapter(playlistList, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(Playlist playlist) {
-                            Log.d("Jamendo", "fetching playlist:"+playlist.getId());
-                            Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
-                            intent.putExtra("playlistId", playlist.getId());
-                            startActivity(intent);
-                        }
-                    });
-                    recyclerView.setAdapter(playlistAdapter);
-
-                    for (Playlist playlist : playlistList) {
-                        Log.d("Jamendo", "Track ID: " + playlist.getId());
-                        Log.d("Jamendo", "Track Name: " + playlist.getName());
-                    }
-                    Log.d("Jamendo", response.body().toString());
-                } else {
-                    Log.e("Jamendo", "No tracks found or response failed.");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PlaylistResponse> call, Throwable t) {
-                Log.e("Jamendo", "Error: " + t.getMessage());
-            }
-        });
-
-    }
+//    public void fetchAndInflate() {
+//        PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
+//        Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 10, null);
+//        Log.d("call: ", call.request().url().toString());
+//        call.enqueue(new Callback<PlaylistResponse>() {
+//            @Override
+//            public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    playlistList = response.body().getResults();
+//                    // Cập nhật giao diện người dùng
+//                    PlaylistAdapter playlistAdapter = new PlaylistAdapter(playlistList, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(Playlist playlist) {
+//                            Log.d("Jamendo", "fetching playlist:"+playlist.getId());
+//                            Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
+//                            intent.putExtra("playlistId", playlist.getId());
+//                            startActivity(intent);
+//                        }
+//                    });
+//                    recyclerView.setAdapter(playlistAdapter);
+//
+//                    for (Playlist playlist : playlistList) {
+//                        Log.d("Jamendo", "Track ID: " + playlist.getId());
+//                        Log.d("Jamendo", "Track Name: " + playlist.getName());
+//                    }
+//                    Log.d("Jamendo", response.body().toString());
+//                } else {
+//                    Log.e("Jamendo", "No tracks found or response failed.");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<PlaylistResponse> call, Throwable t) {
+//                Log.e("Jamendo", "Error: " + t.getMessage());
+//            }
+//        });
+//
+//    }
 
     public void fetchPlaylistsByIds(List<Integer> popularPlaylistIds) {
         PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
-                Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
             }

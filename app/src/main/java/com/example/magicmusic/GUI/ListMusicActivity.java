@@ -11,22 +11,23 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.magicmusic.API.AlbumApi;
 import com.example.magicmusic.API.ApiClient;
-import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
 import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
+import com.example.magicmusic.adapters.TrackAdapter;
 import com.example.magicmusic.models.AlbumTrackList;
-import com.example.magicmusic.models.FavoriteTrackList;
-import com.example.magicmusic.models.JamendoResponse;
+import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.Track;
-import com.example.magicmusic.models.TracksFromPlaylistResponse;
+import com.example.magicmusic.models.TrackResponse;
 
 
 import java.util.ArrayList;
@@ -45,7 +46,6 @@ public class ListMusicActivity extends AppCompatActivity {
     private String currentSongUrl;
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
-    private List<Track> trackList;
     private RelativeLayout listContent;
     private SongPlayerWidget songPlayerWidget;
     private LinearLayout scrollViewContainer;
@@ -56,6 +56,7 @@ public class ListMusicActivity extends AppCompatActivity {
     private ImageButton loopButton;
     private int playFunction = 0;
     private int loopFunction = 1;
+    RecyclerView trackList;
 //    private String currentSongUrl;
 //    private List<JamendoResponse.Track> trackList;  // Use Track from TracksFromPlaylistResponse
 
@@ -64,54 +65,63 @@ public class ListMusicActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_music);
 
+        trackList = findViewById(R.id.song_list);
+        trackList.setLayoutManager(new LinearLayoutManager(this));
 
-        JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
-        Call<JamendoResponse> call = apiService.getTracks("json", 10);
 
-        call.enqueue(new Callback<JamendoResponse>() {
-            @Override
-            public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    trackList = response.body().getResults();
-                    for (Track track : trackList) {
-                        Log.d("Jamendo", "Track ID: " + track.getId());
-                        Log.d("Jamendo", "Track Name: " + track.getName());
-                        Log.d("Jamendo", "Artist: " + track.getArtist_name());
-                        Log.d("Jamendo", "Preview URL: " + track.getAudio()); // Kiểm tra URL preview
-                        albumTrackLists.add(new AlbumTrackList(track.getAudio(), track.getName(), track.getArtist_name(), null, true, false));
-                        Log.d("Jamendo", "Preview URL: " + track.getAudio());  // Check preview URL
-                    }
-                    // Cập nhật giao diện người dùng
-                    songAdapter = new SongAdapter(ListMusicActivity.this, trackList);
-//                    recyclerView.setAdapter(songAdapter);
-                    SongContentView();
+//        AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
+//        Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+//        Log.d("call: ", call.request().url().toString());
 
-                    // Thiết lập sự kiện khi bài hát được chọn
-                    songAdapter.setOnItemClickListener((track) -> {
-                        setCurrentSong(track.getAudio(), track.getName());
-                    });
+//        call.enqueue(new Callback<JamendoResponse>() {
+//            @Override
+//            public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    trackList = response.body().getResults();
+//                    for (Track track : trackList) {
+//                        Log.d("Jamendo", "Track ID: " + track.getId());
+//                        Log.d("Jamendo", "Track Name: " + track.getName());
+//                        Log.d("Jamendo", "Artist: " + track.getArtist_name());
+//                        Log.d("Jamendo", "Preview URL: " + track.getAudio()); // Kiểm tra URL preview
+//                        albumTrackLists.add(new AlbumTrackList(track.getAudio(), track.getName(), track.getArtist_name(), null, true, false));
+//                        Log.d("Jamendo", "Preview URL: " + track.getAudio());  // Check preview URL
+//                    }
+//                    // Cập nhật giao diện người dùng
+//                    songAdapter = new SongAdapter(ListMusicActivity.this, trackList);
+////                    recyclerView.setAdapter(songAdapter);
+//                    SongContentView();
+//
+//                    // Thiết lập sự kiện khi bài hát được chọn
+//                    songAdapter.setOnItemClickListener((track) -> {
+//                        setCurrentSong(track.getAudio(), track.getName());
+//                    });
+//
+//                    Log.d("Jamendo", response.body().toString());
+//                } else {
+//                    Log.e("Jamendo", "No tracks found or response failed.");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JamendoResponse> call, Throwable t) {
+//                Log.e("Jamendo", "Error: " + t.getMessage());
+//            }
+//        });
 
-                    Log.d("Jamendo", response.body().toString());
-                } else {
-                    Log.e("Jamendo", "No tracks found or response failed.");
-                }
-            }
 
-            @Override
-            public void onFailure(Call<JamendoResponse> call, Throwable t) {
-                Log.e("Jamendo", "Error: " + t.getMessage());
-            }
-        });
 
-        scrollViewContainer = findViewById(R.id.scroll_view_container);
+//        scrollViewContainer = findViewById(R.id.scroll_view_container);
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
 
         Header();
-        SongContentView();
+//        SongContentView();
         Logic();
+        fetchAndInflateTracks();
     }
+
+
 
     private void Header() {
         //Nút Back
@@ -125,14 +135,79 @@ public class ListMusicActivity extends AppCompatActivity {
         });
     }
 
+    public void fetchAndInflateTracks() {
+        Intent intent = getIntent();
+        int playlistId = intent.getIntExtra("playlistId", 500089797);
+
+        AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
+        Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+        Log.d("call: ", call.request().url().toString());
+
+        call.enqueue(new Callback<TrackResponse>() {
+            @Override
+            public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Playlist> playlists = response.body().getResults();
+                    Log.d("Results size", "List Size: " + playlists.size());
+
+                    List<Track> tracks = new ArrayList<>();
+                    albumTrackLists.clear(); // Xóa danh sách cũ nếu có
+
+                    // Lấy danh sách các track từ playlist
+                    if (!playlists.isEmpty()) {
+                        tracks.addAll(playlists.get(0).getTracks());
+
+                        // Lưu các Track vào albumTrackLists
+                        for (Track track : tracks) {
+                            albumTrackLists.add(new AlbumTrackList(track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), true, false));
+                            // In ra URL hình ảnh để kiểm tra
+                            Log.d("Track Image URL", "Image URL: " + track.getImage());
+                        }
+                    }
+
+                    Log.d("tracks size", "Track List Size: " + tracks.size());
+                    TrackAdapter trackAdapter = new TrackAdapter(tracks, ListMusicActivity.this, new TrackAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Track track) {
+//                            Toast.makeText(ListMusicActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
+                            // Khi một bài hát được nhấn, phát nhạc trực tiếp
+                            currentSongUrl = track.getAudio();
+                            playMusic(currentSongUrl);
+
+                            // Cập nhật thông tin bài hát đang phát trên SongPlayerWidget
+                            playFunction = 2; // Đặt trạng thái phát
+                            songPlayerWidget.setSongPlayerView(
+                                    track.getName(),
+                                    track.getArtist_name(),
+                                    track.getImage(),
+                                    playFunction,
+                                    loopFunction
+                            );
+                        }
+                    });
+                    trackList.setAdapter(trackAdapter);
+                    Log.d("Fetched: ", response.body().toString());
+                } else {
+                    Log.e("Jamendo", "No tracks found or response failed.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TrackResponse> call, Throwable t) {
+                Log.e("Jamendo", "Error: " + t.getMessage());
+                t.printStackTrace();
+            }
+        });
+    }
+
     private void SongContentView() {
-        TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
-        scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
+//        TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
+//        scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
         if (albumTrackLists == null || albumTrackLists.isEmpty()) {
-            svNoContentNotify.setText(R.string.favorite_empty_list);
-            svNoContentNotify.setVisibility(View.VISIBLE);
+//            svNoContentNotify.setText(R.string.favorite_empty_list);
+//            svNoContentNotify.setVisibility(View.VISIBLE);
         } else {
-            svNoContentNotify.setVisibility(View.GONE);
+//            svNoContentNotify.setVisibility(View.GONE);
             for (AlbumTrackList track : albumTrackLists) {
                 SongContentWidget songContentWidget = new SongContentWidget(this);
                 songContentWidget.setSongName(track.getCurrentSongName());
@@ -188,6 +263,7 @@ public class ListMusicActivity extends AppCompatActivity {
                 songPlayerWidget.setSongPlayerView(
                         previousTrack.getCurrentSongName(),
                         previousTrack.getCurrentSongArtist(),
+                        previousTrack.getCurrentSongImage(),
                         playFunction,
                         loopFunction
                 );
@@ -206,6 +282,7 @@ public class ListMusicActivity extends AppCompatActivity {
                 songPlayerWidget.setSongPlayerView(
                         nextTrack.getCurrentSongName(),
                         nextTrack.getCurrentSongArtist(),
+                        nextTrack.getCurrentSongImage(),
                         playFunction,
                         loopFunction
                 );
@@ -268,7 +345,18 @@ public class ListMusicActivity extends AppCompatActivity {
                 mediaPlayer.setOnCompletionListener(mp -> {
                     switch (loopFunction) {
                         case 1: // NoRepeat
-                            stopMusic(); // Dừng nếu không lặp lại
+                            // Nếu không lặp lại, phát bài tiếp theo
+                            AlbumTrackList nextTrack = getNextTrack();
+                            if (nextTrack != null) {
+                                playMusic(nextTrack.getCurrentSongUrl());
+                                songPlayerWidget.setSongPlayerView(
+                                        nextTrack.getCurrentSongName(),
+                                        nextTrack.getCurrentSongArtist(),
+                                        nextTrack.getCurrentSongImage(),
+                                        playFunction,
+                                        loopFunction
+                                );
+                            }
                             break;
                         case 2: // Repeat
                             playMusic(currentSongUrl); // Phát lại bài hiện tại
@@ -280,6 +368,7 @@ public class ListMusicActivity extends AppCompatActivity {
                                 songPlayerWidget.setSongPlayerView(
                                         randomTrack.getCurrentSongName(),
                                         randomTrack.getCurrentSongArtist(),
+                                        randomTrack.getCurrentSongImage(),
                                         playFunction,
                                         loopFunction
                                 );
@@ -287,7 +376,7 @@ public class ListMusicActivity extends AppCompatActivity {
                             break;
                     }
                 });
-                mediaPlayer.prepareAsync();  // Prepare the song
+//                mediaPlayer.prepareAsync();  // Prepare the song
                 mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
             } catch (Exception e) {
                 Log.e("MediaPlayer", "Error setting data source", e);
