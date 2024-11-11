@@ -3,10 +3,14 @@ package com.example.magicmusic.GUI;
 import static com.example.magicmusic.GUI.ListMusicActivity.CLIENT_ID;
 
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +28,7 @@ import com.example.magicmusic.models.PlaylistResponse;
 import com.example.magicmusic.models.PlaylistResponse;
 import com.example.magicmusic.models.Track;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +49,12 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
   private int currentPage = 1;  // Trang hiện tại
   private final int PAGE_SIZE = 10; // Số lượng bản nhạc mỗi trang
   private boolean isLoading = false; // Đánh dấu khi đang tải dữ liệu
-  ProgressBar progressBar;
+  private MediaPlayer mediaPlayer;
+  private ProgressBar progressBar;
+  private ImageButton prevButton, playPauseButton, nextButton;
+  private TextView currentSongTitle;
+  private boolean isPlaying = false; // Trạng thái phát nhạc ban đầu
+  private int currentSongIndex = 0; // Chỉ số bài hát hiện tại
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -60,11 +70,44 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
 
     trackAdapter = new TrackAdapter(tracks, DemoPlaylistTrackActivity.this, new TrackAdapter.OnItemClickListener() {
       @Override
-      public void onItemClick(Track track) {
+      public void onItemClick(Track track, int index) {
         Toast.makeText(DemoPlaylistTrackActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
+        playSong(track.getAudio());
+        currentSongTitle.setText(track.getName());
+        currentSongIndex = index;
       }
     });
     trackList.setAdapter(trackAdapter);
+
+    prevButton = findViewById(R.id.prev_button);
+    playPauseButton = findViewById(R.id.play_pause_button);
+    nextButton = findViewById(R.id.next_button);
+    currentSongTitle = findViewById(R.id.current_song_title);
+    mediaPlayer = new MediaPlayer();
+    prevButton.setOnClickListener(view -> {
+      playPrevSong();
+    });
+    nextButton.setOnClickListener(view -> {
+      playNextSong();
+    });
+    playPauseButton.setOnClickListener(view -> {
+      if (isPlaying) {
+        // Tạm dừng nhạc
+        playPauseButton.setImageResource(android.R.drawable.ic_media_play); // Đổi thành biểu tượng Play
+        mediaPlayer.pause();
+      } else {
+        // Phát nhạc
+        playPauseButton.setImageResource(android.R.drawable.ic_media_pause); // Đổi thành biểu tượng Pause
+        mediaPlayer.start();
+      }
+      isPlaying = !isPlaying; // Đổi trạng thái
+    });
+    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+      @Override
+      public void onCompletion(MediaPlayer mp) {
+        playNextSong();
+      }
+    });
 
     // Thiết lập sự kiện cuộn để tải thêm dữ liệu khi đến cuối danh sách
     setupScrollListener();
@@ -111,6 +154,7 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
     });
   }
 
+  //test lazy loading
   public void fetchAndInflateTracksDelay() {
     if (isLoading) return; // Kiểm tra xem có đang tải không để tránh gọi nhiều lần
     isLoading = true; // Đánh dấu trạng thái là đang tải
@@ -173,6 +217,51 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
         }
       }
     });
+  }
+
+  private void playSong(String url) {
+    try {
+      showLoadingScreen();
+      mediaPlayer.release();
+      mediaPlayer = new MediaPlayer();
+      mediaPlayer.setDataSource(url);
+      mediaPlayer.prepareAsync(); // Chuẩn bị phát nhạc không đồng bộ
+      mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+          mp.start(); // Bắt đầu phát nhạc khi sẵn sàng
+          playPauseButton.setImageResource(android.R.drawable.ic_media_pause); // Đổi thành biểu tượng Pause
+          isPlaying = true; // Đặt trạng thái phát nhạc thành true
+          hideLoadingScreen();
+        }
+      });
+    } catch (IOException e) {
+      Toast.makeText(this, "Error setting up MediaPlayer: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+      Log.e("MainActivity", "Error setting up MediaPlayer: " + e.getMessage());
+    }
+  }
+
+
+  private void playPrevSong() {
+    if(currentSongIndex > 0) {
+      currentSongIndex--;
+    } else {
+      currentSongIndex = tracks.size() - 1;
+    }
+    Track prevSong = tracks.get(currentSongIndex);
+    playSong(prevSong.getAudio());
+    currentSongTitle.setText(prevSong.getName());
+  }
+
+  private void playNextSong() {
+    if (currentSongIndex < tracks.size() - 1) {
+      currentSongIndex++;
+    } else {
+      currentSongIndex = 0; // Quay lại bài đầu tiên nếu hết danh sách
+    }
+    Track nextSong = tracks.get(currentSongIndex);
+    playSong(nextSong.getAudio());
+    currentSongTitle.setText(nextSong.getName());
   }
 
   private void showLoadingScreen() {

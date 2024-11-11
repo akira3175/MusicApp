@@ -25,7 +25,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
   private OnItemClickListener onItemClickListener;
 
   public interface OnItemClickListener {
-    void onItemClick(Track track);
+    void onItemClick(Track track, int index);
   }
 
   public TrackAdapter(List<Track> trackList, Context context, OnItemClickListener onItemClickListener) {
@@ -46,7 +46,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
       trackArtist = itemView.findViewById(R.id.track_artist);
     }
 
-    public void bind(final Track track, final OnItemClickListener listener, Context context) {
+    public void bind(final Track track, final OnItemClickListener listener, Context context, int position) {
       trackTitle.setText(track.getName());
       trackArtist.setText(track.getArtist_name());
 
@@ -58,7 +58,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
       itemView.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          listener.onItemClick(track);
+          listener.onItemClick(track, position);
         }
       });
     }
@@ -73,7 +73,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
 
   @Override
   public void onBindViewHolder(@NonNull TrackViewHolder holder, int position) {
-    holder.bind(trackList.get(position), onItemClickListener, context);
+    holder.bind(trackList.get(position), onItemClickListener, context, position);
   }
 
   @Override

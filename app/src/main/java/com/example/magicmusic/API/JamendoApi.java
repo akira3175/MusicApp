@@ -16,7 +16,7 @@ public interface JamendoApi {
     );
 
     @GET("playlists/tracks")
-    Call<TracksFromPlaylistResponse> getTracksFromPlaylist(
+    Call<PlaylistResponse> getTracksFromPlaylist(
             @Query("format") String format,
             @Query("id") String playlistId,
             @Query("limit") int limit

@@ -27,7 +27,7 @@ import com.example.magicmusic.adapters.PlaylistAdapter;
 import com.example.magicmusic.adapters.ImageSliderAdapter;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
-import com.example.magicmusic.models.TrackResponse;
+//import com.example.magicmusic.models.TrackResponse;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 //    ProgressBar progressBar;
     ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
+    ArrayList<Playlist> allPlaylists;
+    PlaylistAdapter playlistAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton favoriteButton = findViewById(R.id.favorite_button);
         favoriteButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
-            startActivity(intent);
+            Toast.makeText(MainActivity.this, "Coming soon", Toast.LENGTH_SHORT).show();
+//            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+//            startActivity(intent);
         });
 
         ImageButton searchButton = findViewById(R.id.search_button);
@@ -99,27 +102,30 @@ public class MainActivity extends AppCompatActivity {
         int numberOfColumns = 2;
         recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
+        setUpRecycleView();
         fetchPlaylistsByIds(popularPlaylistIds);
 
 
     }
 
-    public void fetchPlaylistsByIds(List<Integer> popularPlaylistIds) {
+    private void setUpRecycleView() {
         // Danh sách để lưu tất cả các playlist đã tải về
-        List<Playlist> allPlaylists = new ArrayList<>();
+        allPlaylists = new ArrayList<>();
         // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
-        PlaylistAdapter playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
+        playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
                 //Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
-                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
+                Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
             }
         });
         recyclerView.setAdapter(playlistAdapter);
+    }
 
+    public void fetchPlaylistsByIds(List<Integer> popularPlaylistIds) {
         JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
         for (int id : popularPlaylistIds) {
             Call<PlaylistResponse> call = apiService.getPlaylistTracks("json", id + "", 4);
@@ -129,12 +135,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(@NonNull Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<Playlist> playlists = response.body().getResults();
-
                         for (Playlist playlist : playlists) {
                             playlistAdapter.insertItem(playlist);
-                        }
-
-                        for (Playlist playlist : playlists) {
                             Log.d("Jamendo", "Playlist ID: " + playlist.getId());
                             Log.d("Jamendo", "Playlist Name: " + playlist.getName());
                         }
@@ -149,8 +151,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-
     }
-
 }

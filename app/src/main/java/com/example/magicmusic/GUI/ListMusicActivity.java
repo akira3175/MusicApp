@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.magicmusic.API.AlbumApi;
+import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
@@ -27,7 +27,7 @@ import com.example.magicmusic.adapters.TrackAdapter;
 import com.example.magicmusic.models.AlbumTrackList;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.Track;
-import com.example.magicmusic.models.TrackResponse;
+import com.example.magicmusic.models.PlaylistResponse;
 
 
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class ListMusicActivity extends AppCompatActivity {
         trackList.setLayoutManager(new LinearLayoutManager(this));
 
 
-//        AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
-//        Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+//        JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
+//        Call<PlaylistResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
 //        Log.d("call: ", call.request().url().toString());
 
 //        call.enqueue(new Callback<JamendoResponse>() {
@@ -139,13 +139,13 @@ public class ListMusicActivity extends AppCompatActivity {
         Intent intent = getIntent();
         int playlistId = intent.getIntExtra("playlistId", 500089797);
 
-        AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
-        Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+        JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
+        Call<PlaylistResponse> call = apiService.getPlaylistTracks("json", ""+playlistId,10);
         Log.d("call: ", call.request().url().toString());
 
-        call.enqueue(new Callback<TrackResponse>() {
+        call.enqueue(new Callback<PlaylistResponse>() {
             @Override
-            public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+            public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Playlist> playlists = response.body().getResults();
                     Log.d("Results size", "List Size: " + playlists.size());
@@ -168,7 +168,7 @@ public class ListMusicActivity extends AppCompatActivity {
                     Log.d("tracks size", "Track List Size: " + tracks.size());
                     TrackAdapter trackAdapter = new TrackAdapter(tracks, ListMusicActivity.this, new TrackAdapter.OnItemClickListener() {
                         @Override
-                        public void onItemClick(Track track) {
+                        public void onItemClick(Track track, int index) {
 //                            Toast.makeText(ListMusicActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
                             // Khi một bài hát được nhấn, phát nhạc trực tiếp
                             currentSongUrl = track.getAudio();
@@ -193,7 +193,7 @@ public class ListMusicActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<TrackResponse> call, Throwable t) {
+            public void onFailure(Call<PlaylistResponse> call, Throwable t) {
                 Log.e("Jamendo", "Error: " + t.getMessage());
                 t.printStackTrace();
             }
