@@ -2,7 +2,6 @@ package com.example.magicmusic.API;
 
 import com.example.magicmusic.models.JamendoResponse;
 import com.example.magicmusic.models.PlaylistResponse;
-import com.example.magicmusic.models.TracksFromPlaylistResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
