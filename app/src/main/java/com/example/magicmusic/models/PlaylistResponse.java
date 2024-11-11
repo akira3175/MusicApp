@@ -17,4 +17,7 @@ public class PlaylistResponse {
         return results;
     }
 
+    @SerializedName("tracks")
+    private List<Track> tracks;
+
 }

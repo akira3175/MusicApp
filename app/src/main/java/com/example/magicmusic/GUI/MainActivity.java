@@ -1,12 +1,13 @@
 package com.example.magicmusic.GUI;
 
-import static com.example.magicmusic.GUI.ListMusicActivity.CLIENT_ID;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -26,7 +27,9 @@ import com.example.magicmusic.adapters.PlaylistAdapter;
 import com.example.magicmusic.adapters.ImageSliderAdapter;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
-//import com.example.magicmusic.models.TrackResponse;
+import com.example.magicmusic.models.TrackResponse;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +46,7 @@ import retrofit2.Response;
 * */
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final String CLIENT_ID = "ec0e93fa";
     ViewPager2 viewPager;
     List<Integer> imageList;
     RecyclerView recyclerView;
@@ -59,6 +62,18 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        ImageButton favoriteButton = findViewById(R.id.favorite_button);
+        favoriteButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+            startActivity(intent);
+        });
+
+        ImageButton searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            startActivity(intent);
         });
 
         //popular playlistID
@@ -79,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         CircleIndicator3 indicator = findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
 
-
         //playlists
         recyclerView = findViewById(R.id.list);
         int numberOfColumns = 2;
@@ -98,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
-                Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
+                //Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
             }
@@ -134,8 +149,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+
     }
-
-
 
 }
