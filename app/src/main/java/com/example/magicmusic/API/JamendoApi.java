@@ -15,13 +15,6 @@ public interface JamendoApi {
             @Query("limit") int limit
     );
 
-    @GET("playlists/tracks")
-    Call<PlaylistResponse> getTracksFromPlaylist(
-            @Query("format") String format,
-            @Query("id") String playlistId,
-            @Query("limit") int limit
-    );
-
     @GET("tracks")
     Call<JamendoResponse> searchTracks(
             @Query("format") String format,

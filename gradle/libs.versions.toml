@@ -42,5 +42,4 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version = "4.16.0
 room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-
+android-application = { id = "com.android.application", version = "8.5.1" }
