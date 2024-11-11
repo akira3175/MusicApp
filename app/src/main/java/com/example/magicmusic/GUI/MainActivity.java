@@ -68,9 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton favoriteButton = findViewById(R.id.favorite_button);
         favoriteButton.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "Coming soon", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+            startActivity(intent);
         });
 
         ImageButton searchButton = findViewById(R.id.search_button);
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
                 //Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
-                Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
             }
