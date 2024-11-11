@@ -17,19 +17,25 @@
         <activity
             android:name=".GUI.SearchActivity"
             android:exported="true" />
-        <activity
-            android:name=".GUI.PlayListActivity"
-            android:exported="true" />
+<!--        <activity-->
+<!--            android:name=".GUI.PlayListActivity"-->
+<!--            android:exported="true" />-->
         <activity
             android:name=".GUI.FavoriteActivity"
             android:exported="true" />
+        <activity android:name=".GUI.SplashActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".GUI.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity

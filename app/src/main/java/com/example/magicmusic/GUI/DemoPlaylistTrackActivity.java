@@ -146,7 +146,7 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
           }
 
           hideLoadingScreen(); // Ẩn loading screen sau khi hết delay
-        }, 3000); // Độ trễ 3 giây
+        }, 1000); // Độ trễ 3 giây
       }
 
       @Override
