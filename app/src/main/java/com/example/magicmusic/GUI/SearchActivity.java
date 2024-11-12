@@ -151,7 +151,7 @@ public class SearchActivity extends AppCompatActivity {
                                 stopMusic();
                                 playMusic();
                                 playButton.setImageResource(android.R.drawable.ic_media_play);
-                                Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
                             });
 
                             Log.d("Jamendo", response.body().toString());

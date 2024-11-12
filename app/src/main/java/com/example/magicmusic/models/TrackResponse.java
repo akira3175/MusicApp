@@ -6,9 +6,9 @@ import java.util.List;
 
 public class TrackResponse {
     @SerializedName("results")
-    private List<Playlist> results;
+    private List<Track> results;
 
-    public List<Playlist> getResults() {
+    public List<Track> getResults() {
         return results;
     }
 //    private List<Track> results;

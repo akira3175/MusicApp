@@ -25,7 +25,7 @@ import com.example.magicmusic.adapters.PlaylistAdapter;
 import com.example.magicmusic.adapters.ImageSliderAdapter;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
-import com.example.magicmusic.models.TrackResponse;
+import com.example.magicmusic.models.PlaylistResponse;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -144,11 +144,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(playlistAdapter);
 
         for (int id : popularPlaylistIds) {
-            Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 4, id);
+            Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 4, id);
 
-            call.enqueue(new Callback<TrackResponse>() {
+            call.enqueue(new Callback<PlaylistResponse>() {
                 @Override
-                public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+                public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<Playlist> playlists = response.body().getResults();
 
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<TrackResponse> call, Throwable t) {
+                public void onFailure(Call<PlaylistResponse> call, Throwable t) {
                     Log.e("Jamendo", "Error fetching playlist with ID " + id + ": " + t.getMessage());
                 }
             });

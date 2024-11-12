@@ -13,10 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.magicmusic.API.AlbumApi;
 import com.example.magicmusic.API.ApiClient;
+import com.example.magicmusic.API.PlaylistAPI;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.TrackAdapter;
 import com.example.magicmusic.models.Playlist;
-import com.example.magicmusic.models.TrackResponse;
+import com.example.magicmusic.models.PlaylistResponse;
 import com.example.magicmusic.models.Track;
 
 import java.util.ArrayList;
@@ -45,13 +46,13 @@ public class TrackListActivity extends AppCompatActivity {
     Intent intent = getIntent();
     int playlistId = intent.getIntExtra("playlistId", 500089797);
 
-    AlbumApi apiService = ApiClient.getClient().create(AlbumApi.class);
-    Call<TrackResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
+    PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
+    Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 10, playlistId);
     Log.d("call: ", call.request().url().toString());
 
-    call.enqueue(new Callback<TrackResponse>() {
+    call.enqueue(new Callback<PlaylistResponse>() {
       @Override
-      public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+      public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
         if (response.isSuccessful() && response.body() != null) {
           List<Playlist> playlists = response.body().getResults();
           Log.d("Results size", "List Size: " + playlists.size());
@@ -75,7 +76,7 @@ public class TrackListActivity extends AppCompatActivity {
       }
 
       @Override
-      public void onFailure(Call<TrackResponse> call, Throwable t) {
+      public void onFailure(Call<PlaylistResponse> call, Throwable t) {
         Log.e("Jamendo", "Error: " + t.getMessage());
         t.printStackTrace();
       }
