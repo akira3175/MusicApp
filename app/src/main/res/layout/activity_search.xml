@@ -12,30 +12,41 @@
         android:layout_marginTop="4dp"
         android:orientation="vertical"
         android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/musicControlLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.142">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="363dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/prevButton"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:width="48dp"
+                android:height="48dp"
+                android:backgroundTint="#F1F2F0F0"
+                android:scaleType="centerInside"
+                android:src="@drawable/back_button" />
 
             <EditText
                 android:id="@+id/searchInput"
-                android:layout_width="288dp"
-                android:layout_height="48dp"
+                android:layout_width="0dp"
+                android:layout_height="41dp"
+                android:layout_weight="1"
                 android:hint="Nhập từ khóa tìm kiếm"
                 android:inputType="text" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/searchButton"
-                android:layout_width="66dp"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                app:icon="@android:drawable/ic_menu_search"
-                tools:text=" " />
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:width="48dp"
+                android:height="48dp"
+                android:backgroundTint="#F1F2F0F0"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_search" />
         </LinearLayout>
 
         <TextView
@@ -50,37 +61,14 @@
             android:layout_width="match_parent"
             android:layout_height="513dp" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/musicControlLayout"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_marginTop="683dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/txtMusicPlay"
-            android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:drawable/ic_lock_silent_mode_off"
-            android:fontFamily="sans-serif"
-            android:text="TextView"
-            android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <ImageButton
-            android:id="@+id/btnPlay"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_media_play" />
+        <RelativeLayout
+            android:id="@+id/song_player_widget_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            >
+        </RelativeLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
