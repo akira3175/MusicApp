@@ -42,15 +42,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /*
-*   author: truong
-* */
+ *   author: truong
+ * */
 
 public class MainActivity extends AppCompatActivity {
     public static final String CLIENT_ID = "ec0e93fa";
     ViewPager2 viewPager;
     List<Integer> imageList;
     RecyclerView recyclerView;
-//    ProgressBar progressBar;
+    //    ProgressBar progressBar;
     ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
     ArrayList<Playlist> allPlaylists;
     PlaylistAdapter playlistAdapter;
