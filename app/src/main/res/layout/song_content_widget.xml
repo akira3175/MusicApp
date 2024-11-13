@@ -22,7 +22,7 @@
             android:layout_margin="10dp"
             android:contentDescription="@string/favorite_empty_song_cover"
             android:scaleType="fitCenter"
-            android:background="@color/orange"
+            android:background="@color/lightgray"
             app:tint="@color/white"
             app:cornerRadius="10dp"
             />
@@ -83,6 +83,7 @@
                 app:backgroundTint="?android:attr/colorBackground"
                 tools:ignore="TouchTargetSizeCheck" />
             <TextView
+                android:id="@+id/favorite_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"

@@ -71,13 +71,6 @@ public class FavoriteActivity extends AppCompatActivity {
         favoriteTrackDAO = DatabaseInstance.getDatabase(this).favoriteTrackDao();
         selectAll();
 
-        // Lấy danh sách bài hát được tải về trong thư mục Downloads
-        List<FavoriteTrackDTO> downloadedSongsList = downloadAdapter.findSongsInDownloads(FavoriteActivity.this);
-        Log.d("FavoriteActivity", "Downloaded songs found in Downloads folder: " + (downloadedSongsList != null ? downloadedSongsList.size() : "null"));
-        assert downloadedSongsList != null;
-        downloadedSongs = downloadAdapter.downloadedSongsStringSpliterator(downloadedSongsList);
-        Log.d("FavoriteActivity", "Splitted downloaded songs: " + (downloadedSongs != null ? downloadedSongs.size() : "null"));
-
         scrollViewContainer = findViewById(R.id.scroll_view_container);
         songPlayerWidget = new SongPlayerWidget(FavoriteActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
@@ -116,13 +109,15 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     private void Header() {
-        //Nút Back
+        // Nút Back
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish(); // Kết thúc FavoriteActivity
             }
         });
     }
@@ -177,6 +172,12 @@ public class FavoriteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (downloadSwitch.isChecked()) {
+                    // Cập nhật lại danh sách bài hát tải xuống
+                    List<FavoriteTrackDTO> downloadedSongsList = downloadAdapter.findSongsInDownloads(FavoriteActivity.this);
+                    Log.d("FavoriteActivity", "Downloaded songs found in Downloads folder: " + (downloadedSongsList != null ? downloadedSongsList.size() : "null"));
+                    downloadedSongs = downloadAdapter.downloadedSongsStringSpliterator(downloadedSongsList);
+                    Log.d("FavoriteActivity", "Splitted downloaded songs: " + (downloadedSongs != null ? downloadedSongs.size() : "null"));
+
                     TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
                     scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
                     if (downloadedSongs == null || downloadedSongs.isEmpty()) {
@@ -189,12 +190,26 @@ public class FavoriteActivity extends AppCompatActivity {
                             songContentWidget.setSongName(track.getSongName());
                             songContentWidget.setSongArtist(track.getSongArtist());
                             songContentWidget.setSongUrl(track.getSongUrl());
-                            mediaPlayer = new MediaPlayer();
+                            songContentWidget.setTextFavorite("Downloaded /");
+                            songContentWidget.setSongImageUrl(null);
+                            songContentWidget.getSongFavoriteButton().setVisibility(View.GONE);
+                            songContentWidget.getSongDownloadedButton().setVisibility(View.GONE);
+                            MediaPlayer media = new MediaPlayer();
                             try {
                                 Uri songUri = Uri.parse(track.getSongUrl());
-                                mediaPlayer.setDataSource(FavoriteActivity.this, songUri);
-                                mediaPlayer.prepareAsync();
-                                songContentWidget.setSongDuration(mediaPlayer.getDuration());
+                                media.setDataSource(FavoriteActivity.this, songUri);
+                                // Đặt OnPreparedListener để gọi getDuration() sau khi MediaPlayer đã chuẩn bị xong
+                                media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                    @Override
+                                    public void onPrepared(MediaPlayer mp) {
+                                        // Khi MediaPlayer đã sẵn sàng, lấy thời gian của bài hát
+                                        int duration = media.getDuration();
+                                        songContentWidget.setSongDuration(duration);  // Thiết lập thời lượng bài hát lên widget
+                                    }
+                                });
+
+                                // Sử dụng prepareAsync() để chuẩn bị MediaPlayer bất đồng bộ
+                                media.prepareAsync();
                             } catch (Exception e) {
                                 Log.e("FavoriteActivity", "Thiếu đường dẫn bài hát");
                             }
