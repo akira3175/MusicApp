@@ -27,7 +27,7 @@ import java.util.List;
 public class DownloadAdapter {
     public void downloadAndRenameSong(Context context, String songUrl, String newFileName) {
         // Thư mục Music riêng của ứng dụng
-        File musicDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (musicDir != null && !musicDir.exists()) {
             musicDir.mkdirs();
         }
@@ -55,7 +55,6 @@ public class DownloadAdapter {
             }
             fileOutputStream.close();
             inputStream.close();
-            Toast.makeText(context, "Bài hát" + newFileName + " được tải xuống thành công ở thư mục Downloads", Toast.LENGTH_SHORT).show();
 
             // Đổi tên tệp
             File newFile = new File(musicDir, newFileName);

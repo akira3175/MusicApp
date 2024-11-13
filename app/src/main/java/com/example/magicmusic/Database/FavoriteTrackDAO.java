@@ -17,7 +17,7 @@ public interface FavoriteTrackDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAllFavoriteTrack(List<FavoriteTrackDTO> favoriteTracks);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateFavoriteTrack(FavoriteTrackDTO favoriteTrack);
 
     @Update
@@ -31,7 +31,4 @@ public interface FavoriteTrackDAO {
 
     @Query("SELECT * FROM FavoriteTrackDatabase")
     List<FavoriteTrackDTO> getAllFavoriteTracks();
-
-    @Query("SELECT * FROM FavoriteTrackDatabase WHERE song_url = :songUrl")
-    FavoriteTrackDTO getFavoriteTrackBySongUrl(String songUrl);
 }

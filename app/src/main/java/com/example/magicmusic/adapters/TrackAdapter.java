@@ -1,6 +1,7 @@
 package com.example.magicmusic.adapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import com.example.magicmusic.Database.DatabaseInstance;
 import com.example.magicmusic.Database.FavoriteTrackDAO;
 import com.example.magicmusic.Database.FavoriteTrackDTO;
+import com.example.magicmusic.Database.FavoriteTrackDatabase;
+import com.example.magicmusic.GUI.FavoriteActivity;
+import com.example.magicmusic.GUI.ListMusicActivity;
 import com.example.magicmusic.R;
 import com.example.magicmusic.models.JamendoResponse;
 import com.example.magicmusic.models.Track;
@@ -28,13 +33,15 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
   private List<Track> trackList;
   private Context context;
   private OnItemClickListener onItemClickListener;
-  ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private FavoriteTrackDAO favoriteTrackDAO;
 
+  static ExecutorService executorService = Executors.newSingleThreadExecutor();
+  static List<FavoriteTrackDTO> favoriteTrackLists;
 
   public interface OnItemClickListener {
     void onItemClick(Track track, int index);
   }
+
+  public TrackAdapter() {  }
 
   public TrackAdapter(List<Track> trackList, Context context, OnItemClickListener onItemClickListener) {
     this.trackList = trackList;
@@ -79,6 +86,12 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
         public void onClick(View v) {
           isFavorite = !isFavorite; // Chuyển trạng thái yêu thích
           favButton.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_non_favorite);
+
+          FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
+          FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), isFavorite);
+//          deleteAll(db);
+          insert(db, f);
+          selectAll(db);
         }
       });
     }
@@ -106,13 +119,52 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
     notifyItemInserted(trackList.size()-1);
   }
 
-  public void insertAll(List<FavoriteTrackDTO> favoriteTracks) {
-    executorService.execute(() -> {
-      try {
-        favoriteTrackDAO.insertAllFavoriteTrack(favoriteTracks);
-      } catch (Exception e) {
-        Log.e("Database", "Có lỗi thực thi truy vấn");
-      }
-    });
+  // Thao tác với Database
+  public static void insert(FavoriteTrackDatabase db, FavoriteTrackDTO trackToInsert) {
+    Log.d("Database", "insertTrackAdapter called");
+    if (db != null) {
+      executorService.execute(() -> {
+        try {
+          db.favoriteTrackDao().insertFavoriteTrack(trackToInsert);
+          Log.d("Database", "Track ID: " + trackToInsert.getSongId() + ", Track URL: " + trackToInsert.getSongUrl() + ", Track Name: " + trackToInsert.getSongName() + ", Artist: " + trackToInsert.getSongArtist() + ", Is Favorite: " + trackToInsert.getIsFavorite() + ", ImageURL: " + trackToInsert.getSongImageUrl());
+        } catch (Exception e) {
+          Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
+        }
+      });
+    } else {
+      Log.e("Database", "Database chưa được khởi tạo");
+    }
+  }
+
+  public static void selectAll(FavoriteTrackDatabase db) {
+    Log.d("Database", "selectAllTrackAdapter called");
+    if (db != null) {
+      executorService.execute(() -> {
+        try {
+          favoriteTrackLists = db.favoriteTrackDao().getAllFavoriteTracks();
+          for (FavoriteTrackDTO track : favoriteTrackLists)
+            Log.d("Database", "Track ID: " + track.getSongId() + ", Track URL: " + track.getSongUrl() + ", Track Name: " + track.getSongName() + ", Artist: " + track.getSongArtist() + ", Is Favorite: " + track.getIsFavorite() + ", ImageURL: " + track.getSongImageUrl());
+        } catch (Exception e) {
+          Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
+        }
+      });
+    } else {
+      Log.e("Database", "Database chưa được khởi tạo");
+    }
+  }
+
+  public static void deleteAll(FavoriteTrackDatabase db) {
+    Log.d("Database", "deleteAllTrackAdapter called");
+    if (db != null) {
+      executorService.execute(() -> {
+        try {
+          db.favoriteTrackDao().deleteAllFavoriteTrack(favoriteTrackLists);
+        } catch (Exception e) {
+          Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
+        }
+      });
+    } else {
+      Log.e("Database", "Database chưa được khởi tạo");
+    }
   }
 }

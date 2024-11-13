@@ -1,6 +1,7 @@
 package com.example.magicmusic.adapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.R;
 
 public class SongContentWidget extends LinearLayout {

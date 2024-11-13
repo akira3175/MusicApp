@@ -1,6 +1,7 @@
 package com.example.magicmusic.GUI;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
