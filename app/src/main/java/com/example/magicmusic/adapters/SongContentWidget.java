@@ -2,15 +2,19 @@ package com.example.magicmusic.adapters;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.magicmusic.R;
 
 public class SongContentWidget extends LinearLayout {
     private String songUrl;
+    private String songImageUrl;
 
     public SongContentWidget(Context context) {
         super(context);
@@ -41,17 +45,45 @@ public class SongContentWidget extends LinearLayout {
         songArtist.requestFocus();
     }
 
-    public void setSongDuration(String duration) {
+    public void setSongDuration(int duration) {
         TextView songDuration = findViewById(R.id.song_duration);
-        songDuration.setText(duration);
+        int minute = duration / 1000 / 60;
+        int sec = duration / 1000 % 60;
+        songDuration.setText(minute + ':' + sec);
     }
 
-    public void setSongFavorite(boolean isFavorite) {
+    public void setSongImageUrl(String artistImageUrl) {
+        if (artistImageUrl != null && !artistImageUrl.isEmpty()) {
+            ImageView songImage = findViewById(R.id.image_view);
+            this.songImageUrl = artistImageUrl;
+
+            Glide.with(this)
+                    .load(artistImageUrl)
+                    .placeholder(R.drawable.ic_music_note)
+                    .into(songImage);
+            Log.d("Image Ok", "Artist Image URL is not null or empty");
+        } else {
+            Log.e("Image Error", "Artist Image URL is null or empty");
+        }
+    }
+
+    public void setSongFavorite(int isFavorite) {
         ImageButton favButton = findViewById(R.id.fav_button);
-        if (isFavorite) {
+        if (isFavorite == 1) {
             favButton.setImageResource(R.drawable.song_hearted);
         } else {
             favButton.setImageResource(R.drawable.song_unhearted);
+        }
+    }
+
+    public void setSongDownloaded(boolean isDownloaded) {
+        ImageButton downloadButton = findViewById(R.id.download_button);
+        if (isDownloaded) {
+            downloadButton.setImageResource(R.drawable.downloaded);
+            downloadButton.setClickable(false);
+        } else {
+            downloadButton.setImageResource(R.drawable.not_download);
+            downloadButton.setClickable(true);
         }
     }
 
@@ -61,6 +93,10 @@ public class SongContentWidget extends LinearLayout {
 
     public String getSongUrl() {
         return this.songUrl;
+    }
+
+    public String getSongImageUrl() {
+        return this.songImageUrl;
     }
 
     public String getSongName() {
@@ -78,9 +114,12 @@ public class SongContentWidget extends LinearLayout {
         return songDuration.getText().toString();
     }
 
-    public boolean getSongFavorite() {
-        ImageButton favButton = findViewById(R.id.fav_button);
-        return favButton.getDrawable().getConstantState() == getResources().getDrawable(R.drawable.song_hearted).getConstantState();
+    public ImageButton getSongFavoriteButton() {
+        return findViewById(R.id.fav_button);
+    }
+
+    public ImageButton getSongDownloadedButton() {
+        return findViewById(R.id.download_button);
     }
 
     public void init(Context context) {

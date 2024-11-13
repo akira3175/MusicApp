@@ -1,14 +1,16 @@
 package com.example.magicmusic.GUI;
 
-import static com.example.magicmusic.GUI.ListMusicActivity.CLIENT_ID;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,13 +21,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
-import com.example.magicmusic.API.PlaylistAPI;
+//import com.example.magicmusic.API.PlaylistAPI;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.PlaylistAdapter;
 import com.example.magicmusic.adapters.ImageSliderAdapter;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
-import com.example.magicmusic.models.PlaylistResponse;
+//import com.example.magicmusic.models.TrackResponse;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -36,17 +38,22 @@ import java.util.List;
 import me.relex.circleindicator.CircleIndicator3;
 import retrofit2.Call;
 
-import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+/*
+ *   author: truong
+ * */
 
+public class MainActivity extends AppCompatActivity {
+    public static final String CLIENT_ID = "ec0e93fa";
     ViewPager2 viewPager;
     List<Integer> imageList;
     RecyclerView recyclerView;
-    List<Playlist> playlistList;
+    //    ProgressBar progressBar;
     ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
+    ArrayList<Playlist> allPlaylists;
+    PlaylistAdapter playlistAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,18 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        ImageButton favoriteButton = findViewById(R.id.favorite_button);
+        favoriteButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+            startActivity(intent);
+        });
+
+        ImageButton searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            startActivity(intent);
         });
 
         //popular playlistID
@@ -82,81 +101,41 @@ public class MainActivity extends AppCompatActivity {
         int numberOfColumns = 2;
         recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
-//        fetchAndInflate();
-//        fetchAndInflatePopular();
+        setUpRecycleView();
         fetchPlaylistsByIds(popularPlaylistIds);
-    }
 
-    public void fetchAndInflate() {
-        PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
-        Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 10, null);
-        Log.d("call: ", call.request().url().toString());
-        call.enqueue(new Callback<PlaylistResponse>() {
-            @Override
-            public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    playlistList = response.body().getResults();
-                    // Cập nhật giao diện người dùng
-                    PlaylistAdapter playlistAdapter = new PlaylistAdapter(playlistList, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(Playlist playlist) {
-                            Log.d("Jamendo", "fetching playlist:"+playlist.getId());
-                            Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
-                            intent.putExtra("playlistId", playlist.getId());
-                            startActivity(intent);
-                        }
-                    });
-                    recyclerView.setAdapter(playlistAdapter);
-
-                    for (Playlist playlist : playlistList) {
-                        Log.d("Jamendo", "Track ID: " + playlist.getId());
-                        Log.d("Jamendo", "Track Name: " + playlist.getName());
-                    }
-                    Log.d("Jamendo", response.body().toString());
-                } else {
-                    Log.e("Jamendo", "No tracks found or response failed.");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PlaylistResponse> call, Throwable t) {
-                Log.e("Jamendo", "Error: " + t.getMessage());
-            }
-        });
 
     }
 
-    public void fetchPlaylistsByIds(List<Integer> popularPlaylistIds) {
-        PlaylistAPI apiService = ApiClient.getClient().create(PlaylistAPI.class);
-
+    private void setUpRecycleView() {
         // Danh sách để lưu tất cả các playlist đã tải về
-        List<Playlist> allPlaylists = new ArrayList<>();
+        allPlaylists = new ArrayList<>();
         // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
-        PlaylistAdapter playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
+        playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
-                Intent intent = new Intent(MainActivity.this, TrackListActivity.class);
+                //Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
             }
         });
         recyclerView.setAdapter(playlistAdapter);
+    }
 
+    public void fetchPlaylistsByIds(List<Integer> popularPlaylistIds) {
+        JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
         for (int id : popularPlaylistIds) {
-            Call<PlaylistResponse> call = apiService.getPlaylists(CLIENT_ID, "json", 4, id);
-
+            Call<PlaylistResponse> call = apiService.getPlaylistTracks("json", id + "", 4);
+            Log.d("call: ", call.request().url().toString());
             call.enqueue(new Callback<PlaylistResponse>() {
                 @Override
-                public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
+                public void onResponse(@NonNull Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<Playlist> playlists = response.body().getResults();
-
-                        for(Playlist playlist: playlists) {
-                            playlistAdapter.insertItem(playlist);
-                        }
-
                         for (Playlist playlist : playlists) {
+                            playlistAdapter.insertItem(playlist);
                             Log.d("Jamendo", "Playlist ID: " + playlist.getId());
                             Log.d("Jamendo", "Playlist Name: " + playlist.getName());
                         }
@@ -166,13 +145,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<PlaylistResponse> call, Throwable t) {
+                public void onFailure(@NonNull Call<PlaylistResponse> call, @NonNull Throwable t) {
                     Log.e("Jamendo", "Error fetching playlist with ID " + id + ": " + t.getMessage());
                 }
             });
         }
-
-
     }
-
 }
