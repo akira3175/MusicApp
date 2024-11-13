@@ -37,4 +37,12 @@
             android:ellipsize="end"
             android:maxLines="1" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/fav_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="Favourite"
+        android:src="@drawable/ic_favorite" />
 </LinearLayout>
