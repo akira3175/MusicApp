@@ -72,6 +72,7 @@ public class ListMusicActivity extends AppCompatActivity {
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
+        songPlayerWidget.setVisibility(View.GONE);
 
         Header();
         Logic();
