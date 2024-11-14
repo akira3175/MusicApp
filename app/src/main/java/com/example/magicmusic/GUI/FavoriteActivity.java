@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 
 public class FavoriteActivity extends AppCompatActivity {
@@ -132,17 +133,34 @@ public class FavoriteActivity extends AppCompatActivity {
         Switch downloadSwitch = findViewById(R.id.favorite_switch);
         //Nút Play chung
         MaterialButton playMaterialButton = findViewById(R.id.play_material_button);
-        if (!downloadSwitch.isChecked()) {
-            playMaterialButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Cập nhật danh sách bài hát yêu thích
+        playMaterialButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (downloadSwitch.isChecked()) {
+                    // Khi Switch ở chế độ Download
+                    if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
+                        playFunction = 2;
+                        currentSongUrl = downloadedSongs.get(0).getSongUrl(); // Cập nhật bài đầu tiên của downloadedSongs
+                        playMusic(currentSongUrl);
+                        songPlayerWidget.setSongPlayerView(
+                                downloadedSongs.get(0).getSongName(),
+                                downloadedSongs.get(0).getSongArtist(),
+                                null,
+                                playFunction,
+                                loopFunction
+                        );
+                        songPlayerWidget.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d("FavoriteActivity", "No downloaded songs available");
+                    }
+                } else {
+                    // Khi Switch ở chế độ yêu thích
                     FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
                     selectAll(db);
-                    //Chọn bài đầu để phát
                     if (favoriteTrackLists != null && !favoriteTrackLists.isEmpty()) {
                         playFunction = 2;
-                        playMusic(favoriteTrackLists.get(0).getSongUrl());
+                        currentSongUrl = favoriteTrackLists.get(0).getSongUrl(); // Cập nhật bài đầu tiên của favoriteTrackLists
+                        playMusic(currentSongUrl);
                         songPlayerWidget.setSongPlayerView(
                                 favoriteTrackLists.get(0).getSongName(),
                                 favoriteTrackLists.get(0).getSongArtist(),
@@ -155,28 +173,8 @@ public class FavoriteActivity extends AppCompatActivity {
                         Log.d("FavoriteActivity", "No favorite tracks available");
                     }
                 }
-            });
-        } else {
-            playMaterialButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Chọn bài đầu để phát
-                    songPlayerWidget.setVisibility(View.VISIBLE);
-                    if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
-                        playFunction = 2;
-                        playMusic(downloadedSongs.get(0).getSongUrl());
-                        songPlayerWidget.setSongPlayerView(
-                                downloadedSongs.get(0).getSongName(),
-                                downloadedSongs.get(0).getSongArtist(),
-                                playFunction,
-                                loopFunction
-                        );
-                    } else {
-                        Log.d("FavoriteActivity", "No downloaded songs available");
-                    }
-                }
-            });
-        }
+            }
+        });
         //Nút Switch
         downloadSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -224,6 +222,7 @@ public class FavoriteActivity extends AppCompatActivity {
                         songContentWidget.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                stopMusic();
                                 playFunction = 2;
                                 songPlayerWidget.setSongPlayerView(
                                         songContentWidget.getSongName(),
@@ -304,14 +303,28 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     private void setupMediaPlayerForSong(SongContentWidget songContentWidget, FavoriteTrackDTO track) {
-        mediaPlayer = new MediaPlayer();
+        MediaPlayer mediaPlayer = new MediaPlayer();
+
         try {
-            mediaPlayer.setDataSource(track.getSongUrl());
+            Uri songUri = Uri.parse(track.getSongUrl());
+            mediaPlayer.setDataSource(FavoriteActivity.this, songUri);
+            mediaPlayer.setOnPreparedListener(mp -> {
+                int duration = mp.getDuration();
+                songContentWidget.setSongDuration(duration); // Cập nhật vào widget giao diện
+            });
+
+            // Chuẩn bị MediaPlayer bất đồng bộ
             mediaPlayer.prepareAsync();
-            songContentWidget.setSongDuration(mediaPlayer.getDuration());
+
         } catch (Exception e) {
-            Log.e("Jamendo", "Thiếu URL bài hát");
+            Log.e("FavoriteActivity", "Error setting up MediaPlayer for song: " + track.getSongName(), e);
         }
+
+        // Listener khi hoàn thành để giải phóng tài nguyên
+        mediaPlayer.setOnCompletionListener(mp -> {
+            mp.release();
+            Log.d("FavoriteActivity", "MediaPlayer resources released after song completion");
+        });
     }
 
     private void playSong(SongContentWidget songContentWidget) {
@@ -343,6 +356,7 @@ public class FavoriteActivity extends AppCompatActivity {
 
     private void handleDownload(SongContentWidget songContentWidget) {
         String songName = songContentWidget.getSongName() + " - " + songContentWidget.getSongArtist() + ".mp3";
+        Toast.makeText(FavoriteActivity.this, "Đang tải bài hát: " + songName + " ...", Toast.LENGTH_SHORT).show();
         if (!downloadAdapter.checkFileInDownloads(FavoriteActivity.this, songName)) {
             songContentWidget.setSongDownloaded(true);
             Log.d("Download", "Download song: " + songContentWidget.getSongUrl());
@@ -454,6 +468,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private FavoriteTrackDTO getNextTrack() {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch downloadMaterialButton = findViewById(R.id.favorite_switch);
+
         if (!downloadMaterialButton.isChecked()) {
             for (int i = 0; i < favoriteTrackLists.size(); i++) {
                 if (favoriteTrackLists.get(i).getSongUrl().equals(currentSongUrl) && i < favoriteTrackLists.size() - 1) {
