@@ -22,7 +22,7 @@
             android:layout_margin="10dp"
             android:contentDescription="@string/favorite_empty_song_cover"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_music_note"
+            android:src="@drawable/baseline_music_note_24"
             app:cornerRadius="10dp"
             />
     </LinearLayout>
@@ -116,7 +116,7 @@
             android:contentDescription="@string/favorite_empty_list"
             android:scaleType="centerCrop"
             app:backgroundTint="?android:attr/colorBackground"
-            app:srcCompat="@drawable/not_download"
+            app:srcCompat="@drawable/baseline_download_24"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
 
