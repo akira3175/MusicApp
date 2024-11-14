@@ -22,11 +22,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import android.app.Activity;
 
 
 public class DownloadAdapter {
-    public void downloadAndRenameSong(Context context, String songUrl, String newFileName) {
-        // Thư mục Music riêng của ứng dụng
+    public void downloadAndRenameSong(Activity activity, String songUrl, String newFileName) {
         File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (musicDir != null && !musicDir.exists()) {
             musicDir.mkdirs();
@@ -42,10 +42,12 @@ public class DownloadAdapter {
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 Log.d("DownloadAdapter", "Failed to connect: " + connection.getResponseCode());
+                activity.runOnUiThread(() ->
+                        Toast.makeText(activity, "Tải không thành công", Toast.LENGTH_SHORT).show()
+                );
                 return;
             }
 
-            // Tải tệp về
             InputStream inputStream = new BufferedInputStream(connection.getInputStream());
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             byte[] dataBuffer = new byte[1024];
@@ -56,18 +58,27 @@ public class DownloadAdapter {
             fileOutputStream.close();
             inputStream.close();
 
-            // Đổi tên tệp
             File newFile = new File(musicDir, newFileName);
             if (tempFile.renameTo(newFile)) {
                 Log.d("DownloadAdapter", "File renamed successfully to: " + newFileName);
+                activity.runOnUiThread(() ->
+                        Toast.makeText(activity, "Đã tải thành công", Toast.LENGTH_SHORT).show()
+                );
             } else {
                 Log.d("DownloadAdapter", "Failed to rename file.");
+                activity.runOnUiThread(() ->
+                        Toast.makeText(activity, "Tải không thành công", Toast.LENGTH_SHORT).show()
+                );
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            activity.runOnUiThread(() ->
+                    Toast.makeText(activity, "Tải không thành công", Toast.LENGTH_SHORT).show()
+            );
         }
     }
+
 
     public boolean checkFileInDownloads(Context context, String fileNameToFind) {
         Uri collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;

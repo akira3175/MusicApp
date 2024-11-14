@@ -19,6 +19,7 @@ import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
+import com.example.magicmusic.adapters.TrackAdapter;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.controllers.MusicController;
 import com.example.magicmusic.models.AlbumTrackList;
@@ -40,6 +41,7 @@ public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity";
     private RecyclerView recyclerView;
     private SongAdapter SongAdapter;
+    private TrackAdapter trackAdapter;
     private List<Track> trackList;
     private TextView songTitle;
     private RelativeLayout listContent;
@@ -92,6 +94,7 @@ public class SearchActivity extends AppCompatActivity {
         // Xử lý đóng intent search
         prevButton.setOnClickListener(v -> {
             finish();
+            onDestroy();
         });
 
         // Xử lý khi người dùng nhấn nút tìm kiếm

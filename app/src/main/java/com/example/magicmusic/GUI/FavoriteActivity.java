@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 
 public class FavoriteActivity extends AppCompatActivity {
@@ -103,6 +104,7 @@ public class FavoriteActivity extends AppCompatActivity {
         Header();
         Navigation();
         Logic();
+        songPlayerWidget.setVisibility(View.GONE);
     }
 
     private void requestAudioPermission() {
@@ -143,6 +145,7 @@ public class FavoriteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                stopMusic();
                 startActivity(intent);
                 finish(); // Kết thúc FavoriteActivity
             }
@@ -154,17 +157,34 @@ public class FavoriteActivity extends AppCompatActivity {
         Switch downloadSwitch = findViewById(R.id.favorite_switch);
         //Nút Play chung
         MaterialButton playMaterialButton = findViewById(R.id.play_material_button);
-        if (!downloadSwitch.isChecked()) {
-            playMaterialButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Cập nhật danh sách bài hát yêu thích
+        playMaterialButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (downloadSwitch.isChecked()) {
+                    // Khi Switch ở chế độ Download
+                    if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
+                        playFunction = 2;
+                        currentSongUrl = downloadedSongs.get(0).getSongUrl(); // Cập nhật bài đầu tiên của downloadedSongs
+                        playMusic(currentSongUrl);
+                        songPlayerWidget.setSongPlayerView(
+                                downloadedSongs.get(0).getSongName(),
+                                downloadedSongs.get(0).getSongArtist(),
+                                null,
+                                playFunction,
+                                loopFunction
+                        );
+                        songPlayerWidget.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d("FavoriteActivity", "No downloaded songs available");
+                    }
+                } else {
+                    // Khi Switch ở chế độ yêu thích
                     FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
                     selectAll(db);
-                    //Chọn bài đầu để phát
                     if (favoriteTrackLists != null && !favoriteTrackLists.isEmpty()) {
                         playFunction = 2;
-                        playMusic(favoriteTrackLists.get(0).getSongUrl());
+                        currentSongUrl = favoriteTrackLists.get(0).getSongUrl(); // Cập nhật bài đầu tiên của favoriteTrackLists
+                        playMusic(currentSongUrl);
                         songPlayerWidget.setSongPlayerView(
                                 favoriteTrackLists.get(0).getSongName(),
                                 favoriteTrackLists.get(0).getSongArtist(),
@@ -172,31 +192,13 @@ public class FavoriteActivity extends AppCompatActivity {
                                 playFunction,
                                 loopFunction
                         );
+                        songPlayerWidget.setVisibility(View.VISIBLE);
                     } else {
                         Log.d("FavoriteActivity", "No favorite tracks available");
                     }
                 }
-            });
-        } else {
-            playMaterialButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Chọn bài đầu để phát
-                    if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
-                        playFunction = 2;
-                        playMusic(downloadedSongs.get(0).getSongUrl());
-                        songPlayerWidget.setSongPlayerView(
-                                downloadedSongs.get(0).getSongName(),
-                                downloadedSongs.get(0).getSongArtist(),
-                                playFunction,
-                                loopFunction
-                        );
-                    } else {
-                        Log.d("FavoriteActivity", "No downloaded songs available");
-                    }
-                }
-            });
-        }
+            }
+        });
         //Nút Switch
         downloadSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -244,6 +246,7 @@ public class FavoriteActivity extends AppCompatActivity {
                         songContentWidget.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                stopMusic();
                                 playFunction = 2;
                                 songPlayerWidget.setSongPlayerView(
                                         songContentWidget.getSongName(),
@@ -254,6 +257,7 @@ public class FavoriteActivity extends AppCompatActivity {
                                 playMusic(track.getSongUrl());
                                 // Cập nhật bài hiện tại
                                 currentSongUrl = track.getSongUrl();
+                                songPlayerWidget.setVisibility(View.VISIBLE);
                             }
                         });
                         scrollViewContainer.addView(songContentWidget);
@@ -267,88 +271,127 @@ public class FavoriteActivity extends AppCompatActivity {
 
     private void SongContentView() {
         FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
-        selectAll(db);
         TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
-        scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
-        if (favoriteTrackLists == null || favoriteTrackLists.isEmpty()) {
-            svNoContentNotify.setText(R.string.favorite_empty_list);
-            svNoContentNotify.setVisibility(View.VISIBLE);
-        } else {
-            svNoContentNotify.setVisibility(View.GONE);
-            for (FavoriteTrackDTO track : favoriteTrackLists) {
-                if (!track.getIsFavorite()) {
-                    continue;
-                }
-                SongContentWidget songContentWidget = new SongContentWidget(this);
-                songContentWidget.setSongName(track.getSongName());
-                songContentWidget.setSongArtist(track.getSongArtist());
-                songContentWidget.setSongImageUrl(track.getSongImageUrl());
-                songContentWidget.setSongUrl(track.getSongUrl());
-                mediaPlayer = new MediaPlayer();
-                try {
-                    mediaPlayer.setDataSource(track.getSongUrl());
-                    mediaPlayer.prepareAsync();
-                    songContentWidget.setSongDuration(mediaPlayer.getDuration());
-                } catch (Exception e) {
-                    Log.e("Jamendo", "Thiếu URL bài hát");
-                }
-                // Xử lý sự kiện nhấn widget -> chạy nhạc
-                songContentWidget.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playFunction = 2;
-                        songPlayerWidget.setSongPlayerView(
-                                songContentWidget.getSongName(),
-                                songContentWidget.getSongArtist(),
-                                songContentWidget.getSongImageUrl(),
-                                playFunction,
-                                loopFunction
-                        );
-                        playMusic(songContentWidget.getSongUrl());
-                        // Cập nhật bài hiện tại
-                        currentSongUrl = songContentWidget.getSongUrl();
-                    }
-                });
-                // Khi nhấn vào nút Favorite
-                songContentWidget.getSongFavoriteButton().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (favoriteFunction == 0) {
-                            favoriteFunction = 1;
-                            songContentWidget.setSongFavorite(favoriteFunction);
-                        } else {
-                            favoriteFunction = 0;
-                            for (FavoriteTrackDTO track : favoriteTrackLists) {
-                                if (track.getSongUrl().equals(songContentWidget.getSongUrl())) {
-                                    track.setIsFavorite(false);
-                                    update(db, track);
-                                    break;
-                                }
-                            }
-                            songContentWidget.setSongFavorite(favoriteFunction);
+
+        executorService.execute(() -> {
+            try {
+                // Lấy dữ liệu từ database
+                List<FavoriteTrackDTO> tracks = db.favoriteTrackDao().getAllFavoriteTracks();
+                favoriteTrackLists = tracks;
+
+                // Cập nhật UI trên main thread
+                runOnUiThread(() -> {
+                    scrollViewContainer.removeAllViews();
+
+                    if (tracks == null || tracks.isEmpty()) {
+                        svNoContentNotify.setText(R.string.favorite_empty_list);
+                        svNoContentNotify.setVisibility(View.VISIBLE);
+                    } else {
+                        svNoContentNotify.setVisibility(View.GONE);
+                        for (FavoriteTrackDTO track : tracks) {
+                            if (!track.getIsFavorite()) continue;
+
+                            SongContentWidget songContentWidget = new SongContentWidget(FavoriteActivity.this);
+                            setupSongContentWidget(songContentWidget, track, db);
+                            scrollViewContainer.addView(songContentWidget);
                         }
                     }
                 });
-                // Khi nhấn vào nút Download
-                songContentWidget.getSongDownloadedButton().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String songName = songContentWidget.getSongName() + " - " + songContentWidget.getSongArtist() + ".mp3";
-                        if (!downloadAdapter.checkFileInDownloads(FavoriteActivity.this, songName)) {
-                            songContentWidget.setSongDownloaded(true);
-                            Log.d("Download", "Download song: " + songContentWidget.getSongUrl());
-                            executorService.execute(() -> {
-                                downloadAdapter.downloadAndRenameSong(FavoriteActivity.this, songContentWidget.getSongUrl(), songName);
-                            });
-                        } else {
-                            songContentWidget.setSongDownloaded(false);
-                        }
-                    }
+            } catch (Exception e) {
+                Log.e("Database", "Error loading favorite tracks: " + e.getMessage());
+                runOnUiThread(() -> {
+                    Toast.makeText(FavoriteActivity.this,
+                            "Error loading favorites", Toast.LENGTH_SHORT).show();
                 });
-                scrollViewContainer.addView(songContentWidget);
             }
+        });
+    }
+
+    private void setupSongContentWidget(SongContentWidget songContentWidget, FavoriteTrackDTO track, FavoriteTrackDatabase db) {
+        songContentWidget.setSongName(track.getSongName());
+        songContentWidget.setSongArtist(track.getSongArtist());
+        songContentWidget.setSongImageUrl(track.getSongImageUrl());
+        songContentWidget.setSongUrl(track.getSongUrl());
+
+        // Tạo MediaPlayer và lấy thời gian bài hát
+        setupMediaPlayerForSong(songContentWidget, track);
+
+        // Xử lý sự kiện nhấn widget -> chạy nhạc
+        songContentWidget.setOnClickListener(v -> playSong(songContentWidget));
+
+        // Xử lý sự kiện nhấn nút Favorite
+        songContentWidget.getSongFavoriteButton().setOnClickListener(v -> toggleFavorite(track, songContentWidget, db));
+
+        // Xử lý sự kiện nhấn nút Download
+        songContentWidget.getSongDownloadedButton().setOnClickListener(v -> handleDownload(songContentWidget));
+    }
+
+    private void setupMediaPlayerForSong(SongContentWidget songContentWidget, FavoriteTrackDTO track) {
+        MediaPlayer mediaPlayer = new MediaPlayer();
+
+        try {
+            Uri songUri = Uri.parse(track.getSongUrl());
+            mediaPlayer.setDataSource(FavoriteActivity.this, songUri);
+            mediaPlayer.setOnPreparedListener(mp -> {
+                int duration = mp.getDuration();
+                songContentWidget.setSongDuration(duration); // Cập nhật vào widget giao diện
+            });
+
+            // Chuẩn bị MediaPlayer bất đồng bộ
+            mediaPlayer.prepareAsync();
+
+        } catch (Exception e) {
+            Log.e("FavoriteActivity", "Error setting up MediaPlayer for song: " + track.getSongName(), e);
+        }
+
+        // Listener khi hoàn thành để giải phóng tài nguyên
+        mediaPlayer.setOnCompletionListener(mp -> {
+            mp.release();
+            Log.d("FavoriteActivity", "MediaPlayer resources released after song completion");
+        });
+    }
+
+    private void playSong(SongContentWidget songContentWidget) {
+        playFunction = 2;
+        songPlayerWidget.setSongPlayerView(
+                songContentWidget.getSongName(),
+                songContentWidget.getSongArtist(),
+                songContentWidget.getSongImageUrl(),
+                playFunction,
+                loopFunction
+        );
+        playMusic(songContentWidget.getSongUrl());
+        currentSongUrl = songContentWidget.getSongUrl();
+        songContentWidget.setVisibility(View.VISIBLE);
+        songPlayerWidget.setVisibility(View.VISIBLE);
+    }
+
+    private void toggleFavorite(FavoriteTrackDTO track, SongContentWidget songContentWidget, FavoriteTrackDatabase db) {
+        if (favoriteFunction == 0) {
+            favoriteFunction = 1;
+            songContentWidget.setSongFavorite(favoriteFunction);
+        } else {
+            favoriteFunction = 0;
+            track.setIsFavorite(false);
+            update(db, track);
+            songContentWidget.setSongFavorite(favoriteFunction);
         }
     }
+
+    private void handleDownload(SongContentWidget songContentWidget) {
+        String songName = songContentWidget.getSongName() + " - " + songContentWidget.getSongArtist() + ".mp3";
+        Toast.makeText(FavoriteActivity.this, "Đang tải bài hát: " + songName + " ...", Toast.LENGTH_SHORT).show();
+        if (!downloadAdapter.checkFileInDownloads(FavoriteActivity.this, songName)) {
+            songContentWidget.setSongDownloaded(true);
+            Log.d("Download", "Download song: " + songContentWidget.getSongUrl());
+            executorService.execute(() -> {
+                downloadAdapter.downloadAndRenameSong(FavoriteActivity.this, songContentWidget.getSongUrl(), songName);
+            });
+        } else {
+            songContentWidget.setSongDownloaded(false);
+        }
+    }
+
 
     private void Logic() {
         playButton = songPlayerWidget.getRootView().findViewById(R.id.play_button);
@@ -449,6 +492,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private FavoriteTrackDTO getNextTrack() {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch downloadMaterialButton = findViewById(R.id.favorite_switch);
+
         if (!downloadMaterialButton.isChecked()) {
             for (int i = 0; i < favoriteTrackLists.size(); i++) {
                 if (favoriteTrackLists.get(i).getSongUrl().equals(currentSongUrl) && i < favoriteTrackLists.size() - 1) {
@@ -561,9 +605,16 @@ public class FavoriteActivity extends AppCompatActivity {
         if (db != null) {
             executorService.execute(() -> {
                 try {
-                    favoriteTrackLists = db.favoriteTrackDao().getAllFavoriteTracks();
-                    for (FavoriteTrackDTO track : favoriteTrackLists)
-                        Log.d("Database", "Track ID: " + track.getSongId() + ", Track URL: " + track.getSongUrl() + ", Track Name: " + track.getSongName() + ", Artist: " + track.getSongArtist() + track.getIsFavorite() + track.getSongImageUrl());
+                    List<FavoriteTrackDTO> tracks = db.favoriteTrackDao().getAllFavoriteTracks();
+                    favoriteTrackLists = tracks;
+                    for (FavoriteTrackDTO track : tracks) {
+                        Log.d("Database", "Track ID: " + track.getSongId() +
+                                ", Track URL: " + track.getSongUrl() +
+                                ", Track Name: " + track.getSongName() +
+                                ", Artist: " + track.getSongArtist() +
+                                track.getIsFavorite() +
+                                track.getSongImageUrl());
+                    }
                 } catch (Exception e) {
                     Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
                 }
