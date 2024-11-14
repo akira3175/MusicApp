@@ -67,6 +67,18 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
       trackTitle.setText(track.getName());
       trackArtist.setText(track.getArtist_name());
 
+      FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
+      selectAll(db);
+      boolean getFavFlag = false;
+      if (favoriteTrackLists != null) {
+        for (FavoriteTrackDTO t : favoriteTrackLists) {
+          if (t.getSongId() == track.getId()) {
+            getFavFlag = t.getIsFavorite();
+
+          }
+        }
+      }
+      Log.d("Check", track.getId() + "");
       Glide.with(context)
               .load(track.getImage())
               .placeholder(R.drawable.ic_music_note)
@@ -79,8 +91,14 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
         }
       });
 
+      boolean finalGetFavFlag = getFavFlag;
+      if (getFavFlag)
+        favButton.setImageResource(R.drawable.ic_favorite);
+      else
+        favButton.setImageResource(R.drawable.ic_non_favorite);
+
       favButton.setOnClickListener(new View.OnClickListener() {
-        private boolean isFavorite = false;
+        boolean isFavorite = finalGetFavFlag;
 
         @Override
         public void onClick(View v) {
@@ -89,9 +107,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
 
           FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
           FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), isFavorite);
-//          deleteAll(db);
           insert(db, f);
-          selectAll(db);
         }
       });
     }
