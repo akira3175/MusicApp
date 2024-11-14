@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:background="@color/lightgray">
+    android:background="@color/gray">
 
     <LinearLayout
         android:id="@+id/image_container"
@@ -82,7 +82,7 @@
             android:layout_margin="5dp"
             android:contentDescription="@string/favorite_play_button"
             android:scaleType="centerCrop"
-            android:backgroundTint="@color/slghtlylightgray"
+            android:backgroundTint="@color/gray"
             app:srcCompat="@drawable/playback_button"
             tools:ignore="TouchTargetSizeCheck" />
 
@@ -93,7 +93,7 @@
             android:layout_margin="5dp"
             android:contentDescription="@string/favorite_play_button"
             android:scaleType="centerCrop"
-            android:backgroundTint="@color/slghtlylightgray"
+            android:backgroundTint="@color/gray"
             app:srcCompat="@drawable/play_song_button"
             tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
 
@@ -104,7 +104,7 @@
             android:layout_margin="5dp"
             android:contentDescription="@string/favorite_play_button"
             android:scaleType="centerCrop"
-            android:backgroundTint="@color/slghtlylightgray"
+            android:backgroundTint="@color/gray"
             app:srcCompat="@drawable/playnext_button"
             tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
 
@@ -115,7 +115,7 @@
             android:layout_margin="5dp"
             android:contentDescription="@string/favorite_play_button"
             android:scaleType="centerCrop"
-            android:backgroundTint="@color/slghtlylightgray"
+            android:backgroundTint="@color/gray"
             app:srcCompat="@drawable/song_no_repeat"
             tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
 

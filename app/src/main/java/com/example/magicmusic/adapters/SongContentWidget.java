@@ -87,10 +87,10 @@ public class SongContentWidget extends LinearLayout {
     public void setSongDownloaded(boolean isDownloaded) {
         ImageButton downloadButton = findViewById(R.id.download_button);
         if (isDownloaded) {
-            downloadButton.setImageResource(R.drawable.downloaded);
+            downloadButton.setImageResource(R.drawable.baseline_download_done_24);
             downloadButton.setClickable(false);
         } else {
-            downloadButton.setImageResource(R.drawable.not_download);
+            downloadButton.setImageResource(R.drawable.baseline_download_24);
             downloadButton.setClickable(true);
         }
     }
