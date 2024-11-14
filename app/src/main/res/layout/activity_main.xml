@@ -2,7 +2,8 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -90,14 +91,14 @@
             android:text="@string/listTitle"/>
 
         <!--    &lt;!&ndash; Danh sách nhạc &ndash;&gt;-->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/title"
-                android:paddingHorizontal="10dp"
-                android:layout_marginTop="10dp"
-                android:nestedScrollingEnabled="false" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/title"
+            android:paddingHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:nestedScrollingEnabled="false" />
 
         <!-- res/layout/footer_simple.xml -->
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -107,6 +108,7 @@
             android:padding="16dp"
             android:id="@+id/footer"
             android:layout_below="@id/list"
+            android:layout_alignParentBottom="true"
             android:layout_marginTop="16dp">
 
             <TextView

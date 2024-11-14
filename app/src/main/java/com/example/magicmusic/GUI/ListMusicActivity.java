@@ -69,55 +69,11 @@ public class ListMusicActivity extends AppCompatActivity {
         trackList = findViewById(R.id.song_list);
         trackList.setLayoutManager(new LinearLayoutManager(this));
 
-
-//        JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
-//        Call<PlaylistResponse> call = apiService.getTracks(CLIENT_ID, "json", 10, playlistId);
-//        Log.d("call: ", call.request().url().toString());
-
-//        call.enqueue(new Callback<JamendoResponse>() {
-//            @Override
-//            public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    trackList = response.body().getResults();
-//                    for (Track track : trackList) {
-//                        Log.d("Jamendo", "Track ID: " + track.getId());
-//                        Log.d("Jamendo", "Track Name: " + track.getName());
-//                        Log.d("Jamendo", "Artist: " + track.getArtist_name());
-//                        Log.d("Jamendo", "Preview URL: " + track.getAudio()); // Kiểm tra URL preview
-//                        albumTrackLists.add(new AlbumTrackList(track.getAudio(), track.getName(), track.getArtist_name(), null, true, false));
-//                        Log.d("Jamendo", "Preview URL: " + track.getAudio());  // Check preview URL
-//                    }
-//                    // Cập nhật giao diện người dùng
-//                    songAdapter = new SongAdapter(ListMusicActivity.this, trackList);
-////                    recyclerView.setAdapter(songAdapter);
-//                    SongContentView();
-//
-//                    // Thiết lập sự kiện khi bài hát được chọn
-//                    songAdapter.setOnItemClickListener((track) -> {
-//                        setCurrentSong(track.getAudio(), track.getName());
-//                    });
-//
-//                    Log.d("Jamendo", response.body().toString());
-//                } else {
-//                    Log.e("Jamendo", "No tracks found or response failed.");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<JamendoResponse> call, Throwable t) {
-//                Log.e("Jamendo", "Error: " + t.getMessage());
-//            }
-//        });
-
-
-
-//        scrollViewContainer = findViewById(R.id.scroll_view_container);
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
 
         Header();
-//        SongContentView();
         Logic();
         fetchAndInflateTracks();
     }
@@ -202,40 +158,6 @@ public class ListMusicActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
-    }
-
-    private void SongContentView() {
-//        TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
-//        scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
-        if (albumTrackLists == null || albumTrackLists.isEmpty()) {
-//            svNoContentNotify.setText(R.string.favorite_empty_list);
-//            svNoContentNotify.setVisibility(View.VISIBLE);
-        } else {
-//            svNoContentNotify.setVisibility(View.GONE);
-            for (AlbumTrackList track : albumTrackLists) {
-                SongContentWidget songContentWidget = new SongContentWidget(this);
-                songContentWidget.setSongName(track.getCurrentSongName());
-                songContentWidget.setSongArtist(track.getCurrentSongArtist());
-                songContentWidget.setSongUrl(track.getCurrentSongUrl());
-                // Khi nhấn vào bài trên list
-                songContentWidget.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playFunction = 2;
-                        songPlayerWidget.setSongPlayerView(
-                                songContentWidget.getSongName(),
-                                songContentWidget.getSongArtist(),
-                                playFunction,
-                                loopFunction
-                        );
-                        playMusic(songContentWidget.getSongUrl());
-                        // Cập nhật bài hiện tại
-                        currentSongUrl = songContentWidget.getSongUrl();
-                    }
-                });
-                scrollViewContainer.addView(songContentWidget);
-            }
-        }
     }
 
     private void Logic() {
@@ -403,7 +325,6 @@ public class ListMusicActivity extends AppCompatActivity {
     }
 
     private void stopMusic() {
-        Log.e("MediaPlayer", "Data:"+mediaPlayer.getAudioSessionId());
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release(); // Giải phóng tài nguyên
