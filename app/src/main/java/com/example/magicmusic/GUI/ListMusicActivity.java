@@ -131,6 +131,7 @@ public class ListMusicActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ListMusicActivity.this, MainActivity.class);
+                stopMusic();
                 startActivity(intent);
             }
         });
@@ -184,6 +185,7 @@ public class ListMusicActivity extends AppCompatActivity {
                                     playFunction,
                                     loopFunction
                             );
+                            songPlayerWidget.setVisibility(View.VISIBLE);
                         }
                     });
                     trackList.setAdapter(trackAdapter);
@@ -191,6 +193,7 @@ public class ListMusicActivity extends AppCompatActivity {
                 } else {
                     Log.e("Jamendo", "No tracks found or response failed.");
                 }
+                songPlayerWidget.setVisibility(View.GONE);
             }
 
             @Override
@@ -400,6 +403,7 @@ public class ListMusicActivity extends AppCompatActivity {
     }
 
     private void stopMusic() {
+        Log.e("MediaPlayer", "Data:"+mediaPlayer.getAudioSessionId());
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release(); // Giải phóng tài nguyên
@@ -415,12 +419,7 @@ public class ListMusicActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        stopMusic();
     }
+
 }

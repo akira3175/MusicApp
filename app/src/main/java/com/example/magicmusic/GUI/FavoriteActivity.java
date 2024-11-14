@@ -79,7 +79,9 @@ public class FavoriteActivity extends AppCompatActivity {
         requestAudioPermission();
         Header();
         Navigation();
+        SongContentView();
         Logic();
+        songPlayerWidget.setVisibility(View.GONE);
     }
 
     private void requestAudioPermission() {
@@ -120,6 +122,7 @@ public class FavoriteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                stopMusic();
                 startActivity(intent);
                 finish(); // Kết thúc FavoriteActivity
             }
@@ -149,6 +152,7 @@ public class FavoriteActivity extends AppCompatActivity {
                                 playFunction,
                                 loopFunction
                         );
+                        songPlayerWidget.setVisibility(View.VISIBLE);
                     } else {
                         Log.d("FavoriteActivity", "No favorite tracks available");
                     }
@@ -159,6 +163,7 @@ public class FavoriteActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //Chọn bài đầu để phát
+                    songPlayerWidget.setVisibility(View.VISIBLE);
                     if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
                         playFunction = 2;
                         playMusic(downloadedSongs.get(0).getSongUrl());
@@ -231,6 +236,7 @@ public class FavoriteActivity extends AppCompatActivity {
                                 playMusic(track.getSongUrl());
                                 // Cập nhật bài hiện tại
                                 currentSongUrl = track.getSongUrl();
+                                songPlayerWidget.setVisibility(View.VISIBLE);
                             }
                         });
                         scrollViewContainer.addView(songContentWidget);
@@ -284,6 +290,8 @@ public class FavoriteActivity extends AppCompatActivity {
                         playMusic(songContentWidget.getSongUrl());
                         // Cập nhật bài hiện tại
                         currentSongUrl = songContentWidget.getSongUrl();
+                        songContentWidget.setVisibility(View.VISIBLE);
+                        songPlayerWidget.setVisibility(View.VISIBLE);
                     }
                 });
                 // Khi nhấn vào nút Favorite

@@ -19,6 +19,7 @@ import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
+import com.example.magicmusic.adapters.TrackAdapter;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.models.AlbumTrackList;
 import com.example.magicmusic.models.JamendoResponse;
@@ -39,6 +40,7 @@ public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity";
     private RecyclerView recyclerView;
     private SongAdapter SongAdapter;
+    private TrackAdapter trackAdapter;
     private List<Track> trackList;
     private TextView songTitle;
     private RelativeLayout listContent;
@@ -71,7 +73,15 @@ public class SearchActivity extends AppCompatActivity {
         // Xử lý đóng intent search
         prevButton.setOnClickListener(v -> {
             finish();
-            onDestroy();
+
+            // Kiểm tra xem mediaPlayer có tồn tại và đang phát hay không
+            if (mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.release();
+                mediaPlayer = null; // Giải phóng và set về null để tránh gọi lại ngoài ý muốn
+            }
         });
 
         // Xử lý khi người dùng nhấn nút tìm kiếm
@@ -100,21 +110,18 @@ public class SearchActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     trackList = response.body().getResults();
                     // Cập nhật giao diện người dùng
-                    SongAdapter = new SongAdapter(SearchActivity.this ,trackList);
-                    recyclerView.setAdapter(SongAdapter);
-
-                    // Thiết lập sự kiện khi bài hát được chọn
-                    SongAdapter.setOnItemClickListener((track) -> {
+                    trackAdapter = new TrackAdapter(trackList, SearchActivity.this, (track, index) -> {
                         currentTrack = track;
                         setCurrentSong(track.getAudio());
                         stopMusic();
-                        playFunction = 2; // 2 -> Trạng thái nhạc đang phát
-                        songPlayerWidget.setPlayButtonState(playFunction); // set hình ảnh nút play hoặc pause
+                        playFunction = 2; // Playing state
+                        songPlayerWidget.setPlayButtonState(playFunction);
                         songPlayerWidget.setSongPlayerView(
                                 track.getName(),
                                 track.getArtist_name(),
                                 track.getImage(),
-                                playFunction, loopFunction);
+                                playFunction, loopFunction
+                        );
                         playMusic(currentSongUrl);
                         Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
                     });
@@ -132,6 +139,7 @@ public class SearchActivity extends AppCompatActivity {
         });
         // Xử lý logic cho các nút bấm
         Logic();
+        setCurrentSong("");
     }
 
     // Hàm tìm kiếm bài hát5
@@ -142,27 +150,22 @@ public class SearchActivity extends AppCompatActivity {
                     public void onResponse(Call<JamendoResponse> call, Response<JamendoResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             trackList = response.body().getResults();
-                            // Cập nhật giao diện người dùng
-                            SongAdapter = new SongAdapter(SearchActivity.this ,trackList);
-                            Log.d("Jamendo", "Size Tracks: " + SongAdapter.getItemCount());
-                            recyclerView.setAdapter(SongAdapter);
-                            // Thiết lập sự kiện khi bài hát được chọn
-                            SongAdapter.setOnItemClickListener((track) -> {
+                            trackAdapter = new TrackAdapter(trackList, SearchActivity.this, (track, index) -> {
                                 currentTrack = track;
                                 setCurrentSong(track.getAudio());
                                 stopMusic();
-                                playFunction = 2; // 2 -> Trạng thái nhạc đang phát
-                                songPlayerWidget.setPlayButtonState(playFunction); // set hình ảnh nút play hoặc pause
+                                playFunction = 2;
+                                songPlayerWidget.setPlayButtonState(playFunction);
                                 songPlayerWidget.setSongPlayerView(
                                         track.getName(),
                                         track.getArtist_name(),
                                         track.getImage(),
-                                        playFunction, loopFunction);
+                                        playFunction, loopFunction
+                                );
                                 playMusic(currentSongUrl);
                                 Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
                             });
-
-                            Log.d("Jamendo", response.body().toString());
+                            recyclerView.setAdapter(trackAdapter);
                         } else {
                             Log.e("Jamendo", "No tracks found or response failed.");
                         }
@@ -171,7 +174,7 @@ public class SearchActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<JamendoResponse> call, Throwable t) {
                         Log.e(TAG, "API Error: " + t.getMessage());
-                        resultsText.setText("Đã xảy ra lỗi khi tìm kiếm.");
+                        resultsText.setText("Error while searching.");
                     }
                 });
     }
@@ -355,7 +358,15 @@ public class SearchActivity extends AppCompatActivity {
 
     public void setCurrentSong(String url) {
         currentSongUrl = url;
+
+        // Kiểm tra nếu `currentSongUrl` không null thì hiển thị `song_player_widget_container`
+        if (currentSongUrl != null && !currentSongUrl.isEmpty()) {
+            listContent.setVisibility(View.VISIBLE);  // Hiện player widget
+        } else {
+            listContent.setVisibility(View.GONE);  // Ẩn player widget khi không có nhạc
+        }
     }
+
 
     @Override
     protected void onDestroy() {
