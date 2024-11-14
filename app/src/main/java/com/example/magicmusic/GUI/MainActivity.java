@@ -43,16 +43,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /*
-*   author: truong
-* */
+ *   author: truong
+ * */
 
 public class MainActivity extends AppCompatActivity {
-    private ViewPager2 viewPager;
-    private List<Integer> imageList;
-    private RecyclerView recyclerView;
-    private ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
-    private ArrayList<Playlist> allPlaylists;
-    private PlaylistAdapter playlistAdapter;
+    public static final String CLIENT_ID = "ec0e93fa";
+    ViewPager2 viewPager;
+    List<Integer> imageList;
+    RecyclerView recyclerView;
+    //    ProgressBar progressBar;
+    ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
+    ArrayList<Playlist> allPlaylists;
+    PlaylistAdapter playlistAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
         //playlists
         recyclerView = findViewById(R.id.list);
-
+        int numberOfColumns = 2;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         setUpRecycleView();
         fetchPlaylistsByIds(popularPlaylistIds);
@@ -104,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpRecycleView() {
-        int numberOfColumns = 2;
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         // Danh sách để lưu tất cả các playlist đã tải về
         allPlaylists = new ArrayList<>();
         // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
@@ -117,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
-                finish();
             }
         });
         recyclerView.setAdapter(playlistAdapter);

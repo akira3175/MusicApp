@@ -34,4 +34,12 @@
         android:textSize="14sp"
         android:textColor="#666"/>
 
+    <ImageView
+        android:id="@+id/fav_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_non_favorite"
+        android:contentDescription="Favourite" />
 </RelativeLayout>

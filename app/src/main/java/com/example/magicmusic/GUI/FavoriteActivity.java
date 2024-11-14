@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -25,12 +26,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.magicmusic.Database.DatabaseInstance;
-import com.example.magicmusic.Database.FavoriteTrackDAO;
 import com.example.magicmusic.Database.FavoriteTrackDTO;
+import com.example.magicmusic.Database.FavoriteTrackDatabase;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.adapters.DownloadAdapter;
+import com.example.magicmusic.adapters.TrackAdapter;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
@@ -57,8 +59,8 @@ public class FavoriteActivity extends AppCompatActivity {
     private String currentSongUrl;
     List<FavoriteTrackDTO> downloadedSongs;
     //Database Objects
+    TrackAdapter lma = new TrackAdapter();
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private FavoriteTrackDAO favoriteTrackDAO;
     private List<FavoriteTrackDTO> favoriteTrackLists;
 
     @Override
@@ -67,22 +69,13 @@ public class FavoriteActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_favorite);
 
-        // Lấy danh sách bài hát yêu thích
-        favoriteTrackDAO = DatabaseInstance.getDatabase(this).favoriteTrackDao();
-        selectAll();
-
-        // Lấy danh sách bài hát được tải về trong thư mục Downloads
-        List<FavoriteTrackDTO> downloadedSongsList = downloadAdapter.findSongsInDownloads(FavoriteActivity.this);
-        Log.d("FavoriteActivity", "Downloaded songs found in Downloads folder: " + (downloadedSongsList != null ? downloadedSongsList.size() : "null"));
-        assert downloadedSongsList != null;
-        downloadedSongs = downloadAdapter.downloadedSongsStringSpliterator(downloadedSongsList);
-        Log.d("FavoriteActivity", "Splitted downloaded songs: " + (downloadedSongs != null ? downloadedSongs.size() : "null"));
-
         scrollViewContainer = findViewById(R.id.scroll_view_container);
         songPlayerWidget = new SongPlayerWidget(FavoriteActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
 
+        FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
+        selectAll(db);
         requestAudioPermission();
         Header();
         Navigation();
@@ -101,6 +94,10 @@ public class FavoriteActivity extends AppCompatActivity {
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }
     }
@@ -116,13 +113,15 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     private void Header() {
-        //Nút Back
+        // Nút Back
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish(); // Kết thúc FavoriteActivity
             }
         });
     }
@@ -136,6 +135,9 @@ public class FavoriteActivity extends AppCompatActivity {
             playMaterialButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Cập nhật danh sách bài hát yêu thích
+                    FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
+                    selectAll(db);
                     //Chọn bài đầu để phát
                     if (favoriteTrackLists != null && !favoriteTrackLists.isEmpty()) {
                         playFunction = 2;
@@ -173,58 +175,76 @@ public class FavoriteActivity extends AppCompatActivity {
             });
         }
         //Nút Switch
-        downloadSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (downloadSwitch.isChecked()) {
-                    TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
-                    scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
-                    if (downloadedSongs == null || downloadedSongs.isEmpty()) {
-                        svNoContentNotify.setText(R.string.favorite_empty_list);
-                        svNoContentNotify.setVisibility(View.VISIBLE);
-                    } else {
-                        svNoContentNotify.setVisibility(View.GONE);
-                        for (FavoriteTrackDTO track : downloadedSongs) {
-                            SongContentWidget songContentWidget = new SongContentWidget(FavoriteActivity.this);
-                            songContentWidget.setSongName(track.getSongName());
-                            songContentWidget.setSongArtist(track.getSongArtist());
-                            songContentWidget.setSongUrl(track.getSongUrl());
-                            mediaPlayer = new MediaPlayer();
-                            try {
-                                Uri songUri = Uri.parse(track.getSongUrl());
-                                mediaPlayer.setDataSource(FavoriteActivity.this, songUri);
-                                mediaPlayer.prepareAsync();
-                                songContentWidget.setSongDuration(mediaPlayer.getDuration());
-                            } catch (Exception e) {
-                                Log.e("FavoriteActivity", "Thiếu đường dẫn bài hát");
-                            }
-                            // Xử lý sự kiện nhấn widget -> chạy nhạc
-                            songContentWidget.setOnClickListener(new View.OnClickListener() {
+        downloadSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Cập nhật lại danh sách bài hát tải xuống
+                List<FavoriteTrackDTO> downloadedSongsList = downloadAdapter.findSongsInDownloads(FavoriteActivity.this);
+                Log.d("FavoriteActivity", "Downloaded songs found in Downloads folder: " + (downloadedSongsList != null ? downloadedSongsList.size() : "null"));
+                downloadedSongs = downloadAdapter.downloadedSongsStringSpliterator(downloadedSongsList);
+                Log.d("FavoriteActivity", "Splitted downloaded songs: " + (downloadedSongs != null ? downloadedSongs.size() : "null"));
+
+                TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
+                scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
+                if (downloadedSongs == null || downloadedSongs.isEmpty()) {
+                    svNoContentNotify.setText(R.string.favorite_empty_list);
+                    svNoContentNotify.setVisibility(View.VISIBLE);
+                } else {
+                    svNoContentNotify.setVisibility(View.GONE);
+                    for (FavoriteTrackDTO track : downloadedSongs) {
+                        SongContentWidget songContentWidget = new SongContentWidget(FavoriteActivity.this);
+                        songContentWidget.setSongName(track.getSongName());
+                        songContentWidget.setSongArtist(track.getSongArtist());
+                        songContentWidget.setSongUrl(track.getSongUrl());
+                        songContentWidget.setTextFavorite("Downloaded /");
+                        songContentWidget.setSongImageUrl(null);
+                        songContentWidget.getSongFavoriteButton().setVisibility(View.GONE);
+                        songContentWidget.getSongDownloadedButton().setVisibility(View.GONE);
+                        MediaPlayer media = new MediaPlayer();
+                        try {
+                            Uri songUri = Uri.parse(track.getSongUrl());
+                            media.setDataSource(FavoriteActivity.this, songUri);
+                            // Đặt OnPreparedListener để gọi getDuration() sau khi MediaPlayer đã chuẩn bị xong
+                            media.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                 @Override
-                                public void onClick(View v) {
-                                    playFunction = 2;
-                                    songPlayerWidget.setSongPlayerView(
-                                            songContentWidget.getSongName(),
-                                            songContentWidget.getSongArtist(),
-                                            playFunction,
-                                            loopFunction
-                                    );
-                                    playMusic(track.getSongUrl());
-                                    // Cập nhật bài hiện tại
-                                    currentSongUrl = track.getSongUrl();
+                                public void onPrepared(MediaPlayer mp) {
+                                    // Khi MediaPlayer đã sẵn sàng, lấy thời gian của bài hát
+                                    int duration = media.getDuration();
+                                    songContentWidget.setSongDuration(duration);
                                 }
                             });
-                            scrollViewContainer.addView(songContentWidget);
+                            // Sử dụng prepareAsync() để chuẩn bị MediaPlayer bất đồng bộ
+                            media.prepareAsync();
+                        } catch (Exception e) {
+                            Log.e("FavoriteActivity", "Thiếu đường dẫn bài hát");
                         }
+                        // Xử lý sự kiện nhấn widget -> chạy nhạc
+                        songContentWidget.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                playFunction = 2;
+                                songPlayerWidget.setSongPlayerView(
+                                        songContentWidget.getSongName(),
+                                        songContentWidget.getSongArtist(),
+                                        playFunction,
+                                        loopFunction
+                                );
+                                playMusic(track.getSongUrl());
+                                // Cập nhật bài hiện tại
+                                currentSongUrl = track.getSongUrl();
+                            }
+                        });
+                        scrollViewContainer.addView(songContentWidget);
                     }
-                } else {
-                    SongContentView();
                 }
+            } else {
+                SongContentView();
             }
         });
     }
 
     private void SongContentView() {
+        FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
+        selectAll(db);
         TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
         scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
         if (favoriteTrackLists == null || favoriteTrackLists.isEmpty()) {
@@ -278,7 +298,7 @@ public class FavoriteActivity extends AppCompatActivity {
                             for (FavoriteTrackDTO track : favoriteTrackLists) {
                                 if (track.getSongUrl().equals(songContentWidget.getSongUrl())) {
                                     track.setIsFavorite(false);
-                                    update(track);
+                                    update(db, track);
                                     break;
                                 }
                             }
@@ -290,12 +310,15 @@ public class FavoriteActivity extends AppCompatActivity {
                 songContentWidget.getSongDownloadedButton().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String songName = songContentWidget.getSongName() + '_' + songContentWidget.getSongArtist() + ".mp3";
+                        String songName = songContentWidget.getSongName() + " - " + songContentWidget.getSongArtist() + ".mp3";
                         if (!downloadAdapter.checkFileInDownloads(FavoriteActivity.this, songName)) {
-                            songContentWidget.setSongDownloaded(false);
-                        } else {
                             songContentWidget.setSongDownloaded(true);
-                            downloadAdapter.downloadAndRenameSong(FavoriteActivity.this, songContentWidget.getSongUrl(), songName);
+                            Log.d("Download", "Download song: " + songContentWidget.getSongUrl());
+                            executorService.execute(() -> {
+                                downloadAdapter.downloadAndRenameSong(FavoriteActivity.this, songContentWidget.getSongUrl(), songName);
+                            });
+                        } else {
+                            songContentWidget.setSongDownloaded(false);
                         }
                     }
                 });
@@ -444,13 +467,21 @@ public class FavoriteActivity extends AppCompatActivity {
                 mediaPlayer.setOnCompletionListener(mp -> {
                     switch (loopFunction) {
                         case 1: // NoRepeat
-                            stopMusic(); // Dừng nếu không lặp lại
+                            if (getNextTrack().getSongUrl() == null)
+                                stopMusic();
+                            else
+                                playMusic(getNextTrack().getSongUrl());
                             break;
                         case 2: // Repeat
-                            playMusic(currentSongUrl); // Phát lại bài hiện tại
+                            playMusic(currentSongUrl);
                             break;
                         case 3: // Shuffle
-                            FavoriteTrackDTO randomTrack = getRandomItem(favoriteTrackLists);
+                            FavoriteTrackDTO randomTrack;
+                            if (!downloadMaterialButton.isChecked())
+                                randomTrack = getRandomItem(favoriteTrackLists);
+                            else
+                                randomTrack = getRandomItem(downloadedSongs);
+
                             if (randomTrack != null) {
                                 playMusic(randomTrack.getSongUrl());
                                 songPlayerWidget.setSongPlayerView(
@@ -501,36 +532,29 @@ public class FavoriteActivity extends AppCompatActivity {
         }
     }
 
-    // Thao tác với database
-    public void selectAll() {
-        if (favoriteTrackDAO != null) {
-            try {
-                executorService.execute(() -> {
-                    favoriteTrackLists = favoriteTrackDAO.getAllFavoriteTracks();
-                    runOnUiThread(this::SongContentView);  // Cập nhật UI sau khi lấy dữ liệu
-                });
-            } catch (Exception e) {
-                Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
-            }
+    // Thao tác với Database
+    public void selectAll(FavoriteTrackDatabase db) {
+        Log.d("Database", "selectAllFavorite called");
+        if (db != null) {
+            executorService.execute(() -> {
+                try {
+                    favoriteTrackLists = db.favoriteTrackDao().getAllFavoriteTracks();
+                    for (FavoriteTrackDTO track : favoriteTrackLists)
+                        Log.d("Database", "Track ID: " + track.getSongId() + ", Track URL: " + track.getSongUrl() + ", Track Name: " + track.getSongName() + ", Artist: " + track.getSongArtist() + track.getIsFavorite() + track.getSongImageUrl());
+                } catch (Exception e) {
+                    Log.e("Database", "Có lỗi thực thi truy vấn: " + e.getMessage());
+                }
+            });
         } else {
-            Log.e("Database", "favoriteTrackDAO chưa được khởi tạo");
+            Log.e("Database", "Database chưa được khởi tạo");
         }
     }
 
-    public void insertAll(List<FavoriteTrackDTO> favoriteTracks) {
-        executorService.execute(() -> {
-            try {
-                favoriteTrackDAO.insertAllFavoriteTrack(favoriteTracks);
-            } catch (Exception e) {
-                Log.e("Database", "Có lỗi thực thi truy vấn");
-            }
-        });
-    }
-
-    public void update(FavoriteTrackDTO favoriteTrack) {
+    public void update(FavoriteTrackDatabase db, FavoriteTrackDTO trackNeedUpdating) {
         try {
+            Log.d("Database", "updateFavorite called");
             executorService.execute(() -> {
-                favoriteTrackDAO.updateFavoriteTrack(favoriteTrack);
+                db.favoriteTrackDao().updateFavoriteTrack(trackNeedUpdating);
                 runOnUiThread(this::SongContentView);
             });
         } catch (SQLiteConstraintException e) {
@@ -540,11 +564,5 @@ public class FavoriteActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("Database", "An unexpected error occurred during update", e);
         }
-    }
-
-    public void delete(FavoriteTrackDTO favoriteTrack) {
-        executorService.execute(() -> {
-            favoriteTrackDAO.deleteFavoriteTrack(favoriteTrack);
-        });
     }
 }

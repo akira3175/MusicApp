@@ -1,6 +1,7 @@
 package com.example.magicmusic.adapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.R;
 
 public class SongContentWidget extends LinearLayout {
@@ -45,11 +47,17 @@ public class SongContentWidget extends LinearLayout {
         songArtist.requestFocus();
     }
 
+    public void setTextFavorite(String text) {
+        TextView songFavorite = findViewById(R.id.favorite_text);
+        songFavorite.setText(text);
+    }
+
     public void setSongDuration(int duration) {
         TextView songDuration = findViewById(R.id.song_duration);
         int minute = duration / 1000 / 60;
-        int sec = duration / 1000 % 60;
-        songDuration.setText(minute + ':' + sec);
+        int second = duration / 1000 % 60;
+        String formattedDuration = String.format("%d:%02d", minute, second);
+        songDuration.setText(formattedDuration);
     }
 
     public void setSongImageUrl(String artistImageUrl) {

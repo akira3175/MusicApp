@@ -26,7 +26,6 @@ public class FavoriteTrackDTO {
     @ColumnInfo(name = "is_favorite")
     private boolean isFavorite;
 
-    @ColumnInfo(name = "download_directory")
     public String text;
 
     public FavoriteTrackDTO() {
