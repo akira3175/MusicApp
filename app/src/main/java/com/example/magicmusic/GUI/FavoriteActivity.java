@@ -33,6 +33,8 @@ import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.adapters.DownloadAdapter;
 import com.example.magicmusic.adapters.TrackAdapter;
+import com.example.magicmusic.controllers.MusicController;
+import com.example.magicmusic.models.Track;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
@@ -62,6 +64,7 @@ public class FavoriteActivity extends AppCompatActivity {
     TrackAdapter lma = new TrackAdapter();
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     private List<FavoriteTrackDTO> favoriteTrackLists;
+    private MusicController musicController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,26 @@ public class FavoriteActivity extends AppCompatActivity {
         songPlayerWidget = new SongPlayerWidget(FavoriteActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
+
+        musicController = new MusicController(this);
+        // Đặt callback khi Service kết nối thành công
+        musicController.setOnServiceConnectedListener(() -> {
+            if (musicController.isPlaying()) {
+                Track track = musicController.getCurrentTrack();
+                if(track == null) return;
+                playFunction = 2;
+                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                songPlayerWidget.setSongPlayerView(
+                        track.getName(),
+                        track.getArtist_name(),
+                        track.getImage(),
+                        playFunction,
+                        loopFunction
+                );
+            } else {
+                Log.d("ListMusicActivity", "Music is not playing");
+            }
+        });
 
         FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
         selectAll(db);

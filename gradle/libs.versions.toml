@@ -19,6 +19,7 @@ circleindicator = "2.1.6"
 circleindicatorVersion = "2.1.6"
 glide = "5.0.0-rc01"
 roomCommon = "2.6.1"
+media = "1.7.0"
 
 [libraries]
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
@@ -40,6 +41,7 @@ circleindicator = { group = "me.relex", name = "CircleIndicator", version.ref = 
 relex-circleindicator = { group = "me.relex", name = "circleindicator", version.ref = "circleindicatorVersion" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version = "4.16.0" }
 room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+media = { group = "androidx.media", name = "media", version.ref = "media" }
 
 [plugins]
 android-application = { id = "com.android.application", version = "8.5.1" }

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:allowBackup="true"
@@ -17,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MagicMusic"
         tools:targetApi="31">
+
+        <service android:name=".services.MediaPlayerService" android:foregroundServiceType="mediaPlayback"/>
+        <receiver android:name=".receivers.NotificationReceiver" />
         <activity
             android:name=".GUI.SearchActivity"
             android:exported="true" />

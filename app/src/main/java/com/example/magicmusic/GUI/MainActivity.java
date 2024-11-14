@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
     ArrayList<Playlist> allPlaylists;
     PlaylistAdapter playlistAdapter;
+    MusicController musicController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,10 +97,8 @@ public class MainActivity extends AppCompatActivity {
         CircleIndicator3 indicator = findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
 
-        //playlists
-        recyclerView = findViewById(R.id.list);
-        int numberOfColumns = 2;
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        //music controller
+        musicController = new MusicController(this);
 
         setUpRecycleView();
         fetchPlaylistsByIds(popularPlaylistIds);
@@ -107,9 +106,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpRecycleView() {
-        // Danh sách để lưu tất cả các playlist đã tải về
+        //playlists
+        recyclerView = findViewById(R.id.list);
+        int numberOfColumns = 2;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         allPlaylists = new ArrayList<>();
-        // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
         playlistAdapter = new PlaylistAdapter(allPlaylists, MainActivity.this, new PlaylistAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Playlist playlist) {
@@ -147,5 +148,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        musicController.release();
     }
 }

@@ -6,7 +6,7 @@
     android:background="#F1F2F0F0"
     android:foregroundTint="#FAF5F5">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -16,8 +16,9 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <ImageButton
@@ -54,12 +55,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:text="Kết quả tìm kiếm" />
+            android:text="Kết quả tìm kiếm"
+            android:layout_below="@id/header"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="513dp" />
+            android:layout_height="513dp"
+            android:layout_below="@id/resultsText"
+            android:layout_above="@id/song_player_widget_container"
+            />
 
         <RelativeLayout
             android:id="@+id/song_player_widget_container"
@@ -69,6 +75,8 @@
             android:layout_alignParentBottom="true"
             >
         </RelativeLayout>
-    </LinearLayout>
+    </RelativeLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

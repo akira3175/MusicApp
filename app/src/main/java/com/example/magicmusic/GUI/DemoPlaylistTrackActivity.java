@@ -22,6 +22,7 @@ import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.TrackAdapter;
+import com.example.magicmusic.controllers.MusicController;
 import com.example.magicmusic.models.PlaylistResponse;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
@@ -55,6 +56,7 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
   private TextView currentSongTitle;
   private boolean isPlaying = false; // Trạng thái phát nhạc ban đầu
   private int currentSongIndex = 0; // Chỉ số bài hát hiện tại
+  private MusicController musicController;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -68,90 +70,23 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
     showLoadingScreen();
     fetchAndInflateTracksDelay();
 
+    currentSongTitle = findViewById(R.id.current_song_title);
+
     trackAdapter = new TrackAdapter(tracks, DemoPlaylistTrackActivity.this, new TrackAdapter.OnItemClickListener() {
       @Override
       public void onItemClick(Track track, int index) {
         Toast.makeText(DemoPlaylistTrackActivity.this, track.getName(), Toast.LENGTH_SHORT).show();
-        playSong(track.getAudio());
-        currentSongTitle.setText(track.getName());
-        currentSongIndex = index;
+//        musicController.playTrack(track.getAudio());
+//        currentSongTitle.setText(track.getName());
+//        currentSongIndex = index;
       }
     });
     trackList.setAdapter(trackAdapter);
 
-    prevButton = findViewById(R.id.prev_button);
-    playPauseButton = findViewById(R.id.play_pause_button);
-    nextButton = findViewById(R.id.next_button);
-    currentSongTitle = findViewById(R.id.current_song_title);
-    mediaPlayer = new MediaPlayer();
-    prevButton.setOnClickListener(view -> {
-      playPrevSong();
-    });
-    nextButton.setOnClickListener(view -> {
-      playNextSong();
-    });
-    playPauseButton.setOnClickListener(view -> {
-      if (isPlaying) {
-        // Tạm dừng nhạc
-        playPauseButton.setImageResource(android.R.drawable.ic_media_play); // Đổi thành biểu tượng Play
-        mediaPlayer.pause();
-      } else {
-        // Phát nhạc
-        playPauseButton.setImageResource(android.R.drawable.ic_media_pause); // Đổi thành biểu tượng Pause
-        mediaPlayer.start();
-      }
-      isPlaying = !isPlaying; // Đổi trạng thái
-    });
-    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-      @Override
-      public void onCompletion(MediaPlayer mp) {
-        playNextSong();
-      }
-    });
+    musicController = new MusicController(this);
 
     // Thiết lập sự kiện cuộn để tải thêm dữ liệu khi đến cuối danh sách
     setupScrollListener();
-  }
-
-  public void fetchAndInflateTracks() {
-    if (isLoading) return; // Kiểm tra xem có đang tải không để tránh gọi nhiều lần
-    isLoading = true; // Đánh dấu trạng thái là đang tải
-
-    Intent intent = getIntent();
-    int playlistId = intent.getIntExtra("playlistId", 500089797);
-
-    int offset = (currentPage - 1) * PAGE_SIZE;
-    JamendoApi apiService = ApiClient.getClient().create(JamendoApi.class);
-    Call<PlaylistResponse> call = apiService.getPlaylistTracks("json", playlistId + "", PAGE_SIZE-1, offset);
-
-    call.enqueue(new Callback<PlaylistResponse>() {
-      @Override
-      public void onResponse(Call<PlaylistResponse> call, Response<PlaylistResponse> response) {
-        isLoading = false; // Hoàn thành tải
-        if (response.isSuccessful() && response.body() != null) {
-          List<Playlist> playlists = response.body().getResults();
-          List<Track> newTracks = new ArrayList<>();
-          if (!playlists.isEmpty()) {
-            newTracks.addAll(playlists.get(0).getTracks());
-          }
-
-          // Thêm dữ liệu mới vào danh sách và cập nhật adapter
-          tracks.addAll(newTracks);
-          trackAdapter.notifyDataSetChanged();
-        } else {
-          Log.e("Jamendo", "No tracks found or response failed.");
-        }
-        hideLoadingScreen();
-      }
-
-      @Override
-      public void onFailure(Call<PlaylistResponse> call, Throwable t) {
-        isLoading = false; // Kết thúc tải trong trường hợp có lỗi
-        hideLoadingScreen();
-        Log.e("Jamendo", "Error: " + t.getMessage());
-        t.printStackTrace();
-      }
-    });
   }
 
   //test lazy loading
@@ -272,4 +207,9 @@ public class DemoPlaylistTrackActivity extends AppCompatActivity {
     progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    musicController.release();
+  }
 }

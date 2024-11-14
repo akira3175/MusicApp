@@ -23,60 +23,69 @@
         android:padding="10dp"/>
 
     <!-- Thanh điều khiển phát nhạc -->
-    <RelativeLayout
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/player_controls"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:background="#E0E0E0"-->
+<!--        android:padding="10dp">-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/prev_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@android:drawable/ic_media_previous"-->
+<!--            android:layout_toStartOf="@id/play_pause_button"-->
+<!--            android:layout_alignParentTop="true"-->
+<!--            />-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/play_pause_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@android:drawable/ic_media_play"-->
+<!--            android:layout_toStartOf="@id/next_button"-->
+<!--            android:layout_alignParentTop="true"/>-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/next_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@android:drawable/ic_media_next"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_alignParentTop="true"/>-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/current_song_title"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentStart="true"-->
+<!--            android:layout_alignParentTop="true"-->
+<!--            android:text="Bài hát hiện tại"-->
+<!--            android:layout_toStartOf="@id/prev_button"-->
+<!--            android:textSize="16sp" />-->
+
+<!--        &lt;!&ndash; SeekBar để hiển thị và tua tiến trình phát &ndash;&gt;-->
+<!--        <SeekBar-->
+<!--            android:id="@+id/seek_bar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="6dp"-->
+<!--            android:layout_above="@id/current_song_title"-->
+<!--            android:layout_alignParentTop="true"-->
+<!--            android:background="@android:color/black"-->
+<!--            android:max="100" />-->
+
+<!--    </RelativeLayout>-->
+    <!-- Thanh điều khiển phát nhạc -->
+    <include layout="@layout/music_bar"
         android:id="@+id/player_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="#E0E0E0"
-        android:padding="10dp">
-
-        <ImageButton
-            android:id="@+id/prev_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_previous"
-            android:layout_toStartOf="@id/play_pause_button"
-            android:layout_alignParentTop="true"
-            />
-
-        <ImageButton
-            android:id="@+id/play_pause_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_play"
-            android:layout_toStartOf="@id/next_button"
-            android:layout_alignParentTop="true"/>
-
-        <ImageButton
-            android:id="@+id/next_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_next"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"/>
-
-        <TextView
-            android:id="@+id/current_song_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:text="Bài hát hiện tại"
-            android:layout_toStartOf="@id/prev_button"
-            android:textSize="16sp" />
-
-        <!-- SeekBar để hiển thị và tua tiến trình phát -->
-        <SeekBar
-            android:id="@+id/seek_bar"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_above="@id/current_song_title"
-            android:layout_alignParentTop="true"
-            android:background="@android:color/black"
-            android:max="100" />
-
-    </RelativeLayout>
+        android:padding="10dp"
+        />
 
     <!-- ProgressBar cho loading screen -->
     <ProgressBar

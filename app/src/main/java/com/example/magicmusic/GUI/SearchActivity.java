@@ -20,6 +20,7 @@ import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
 import com.example.magicmusic.adapters.SongPlayerWidget;
+import com.example.magicmusic.controllers.MusicController;
 import com.example.magicmusic.models.AlbumTrackList;
 import com.example.magicmusic.models.JamendoResponse;
 import com.example.magicmusic.models.Track;
@@ -44,8 +45,7 @@ public class SearchActivity extends AppCompatActivity {
     private RelativeLayout listContent;
     private SongPlayerWidget songPlayerWidget;
 
-    private MediaPlayer mediaPlayer;
-    private String currentSongUrl;
+    private int currentTrackIndex;
     private ImageButton prevButton;
     private ImageButton playButton;
     private ImageButton playPreviousButton;
@@ -54,6 +54,7 @@ public class SearchActivity extends AppCompatActivity {
     private int playFunction = 0;
     private int loopFunction = 1;
     private Track currentTrack;
+    private MusicController musicController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +69,29 @@ public class SearchActivity extends AppCompatActivity {
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
 
+        musicController = new MusicController(this);
+        // Đặt callback khi Service kết nối thành công
+        musicController.setOnServiceConnectedListener(() -> {
+            if (musicController.isPlaying()) {
+                Track track = musicController.getCurrentTrack();
+                if(track == null) return;
+                playFunction = 2;
+                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                songPlayerWidget.setSongPlayerView(
+                        track.getName(),
+                        track.getArtist_name(),
+                        track.getImage(),
+                        playFunction,
+                        loopFunction
+                );
+            } else {
+                Log.d("ListMusicActivity", "Music is not playing");
+            }
+        });
+
         // Xử lý đóng intent search
         prevButton.setOnClickListener(v -> {
             finish();
-            onDestroy();
         });
 
         // Xử lý khi người dùng nhấn nút tìm kiếm
@@ -106,17 +126,13 @@ public class SearchActivity extends AppCompatActivity {
                     // Thiết lập sự kiện khi bài hát được chọn
                     SongAdapter.setOnItemClickListener((track) -> {
                         currentTrack = track;
-                        setCurrentSong(track.getAudio());
-                        stopMusic();
                         playFunction = 2; // 2 -> Trạng thái nhạc đang phát
-                        songPlayerWidget.setPlayButtonState(playFunction); // set hình ảnh nút play hoặc pause
                         songPlayerWidget.setSongPlayerView(
                                 track.getName(),
                                 track.getArtist_name(),
                                 track.getImage(),
                                 playFunction, loopFunction);
-                        playMusic(currentSongUrl);
-                        Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
+                        musicController.playTrack(track);
                     });
 
                     Log.d("Jamendo", response.body().toString());
@@ -149,17 +165,13 @@ public class SearchActivity extends AppCompatActivity {
                             // Thiết lập sự kiện khi bài hát được chọn
                             SongAdapter.setOnItemClickListener((track) -> {
                                 currentTrack = track;
-                                setCurrentSong(track.getAudio());
-                                stopMusic();
                                 playFunction = 2; // 2 -> Trạng thái nhạc đang phát
-                                songPlayerWidget.setPlayButtonState(playFunction); // set hình ảnh nút play hoặc pause
                                 songPlayerWidget.setSongPlayerView(
                                         track.getName(),
                                         track.getArtist_name(),
                                         track.getImage(),
                                         playFunction, loopFunction);
-                                playMusic(currentSongUrl);
-                                Toast.makeText(getApplicationContext(), "Clicked: " + track.getName(), Toast.LENGTH_SHORT).show();
+                                musicController.playTrack(track);
                             });
 
                             Log.d("Jamendo", response.body().toString());
@@ -182,14 +194,14 @@ public class SearchActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSongUrl != null) {
-                    if (mediaPlayer.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
+                if (currentTrackIndex != -1) {
+                    if (musicController.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
                         playFunction = 1;
-                        pauseMusic();
-                        songPlayerWidget.setPlayButtonState(playFunction); // set hình ảnh nút play hoặc pause
-                    } else if (!mediaPlayer.isPlaying() && playFunction == 1) {    // Từ Pause sang Play
+                        musicController.pauseTrack();
+                        songPlayerWidget.setPlayButtonState(playFunction);
+                    } else if (!musicController.isPlaying() && playFunction == 1) {    // Từ Pause sang Play
                         playFunction = 2;
-                        continueMusic();
+                        musicController.resumeTrack();
                         songPlayerWidget.setPlayButtonState(playFunction);
                     }
                 }
@@ -197,14 +209,11 @@ public class SearchActivity extends AppCompatActivity {
         });
 
         playPreviousButton = songPlayerWidget.getRootView().findViewById(R.id.play_back_button);
-        // Chỉ thực hiện trong danh sách đã tìm kiếm
         playPreviousButton.setOnClickListener(v -> {
+            currentTrack = getPreviousTrack();
             if (currentTrack != null) {
                 playFunction = 2;
-                int prevIndex = (trackList.indexOf(currentTrack) - 1) < 0 ? trackList.size() - 1 : trackList.indexOf(currentTrack) - 1;
-                currentTrack = trackList.get(prevIndex);
-                setCurrentSong(currentTrack.getAudio());
-                playMusic(currentSongUrl);
+                musicController.playTrack(currentTrack);
                 songPlayerWidget.setSongPlayerView(
                         currentTrack.getName(),
                         currentTrack.getArtist_name(),
@@ -219,12 +228,10 @@ public class SearchActivity extends AppCompatActivity {
 
         playNextButton = songPlayerWidget.getRootView().findViewById(R.id.play_next_button);
         playNextButton.setOnClickListener(v -> {
+            currentTrack = getNextTrack();
             if (currentTrack != null) {
                 playFunction = 2;
-                int nextIndex = (trackList.indexOf(currentTrack) + 1) == trackList.size() ? 0 : trackList.indexOf(currentTrack) + 1;
-                currentTrack = trackList.get(nextIndex);
-                setCurrentSong(currentTrack.getAudio());
-                playMusic(currentSongUrl);
+                musicController.playTrack(currentTrack);
                 songPlayerWidget.setSongPlayerView(
                         currentTrack.getName(),
                         currentTrack.getArtist_name(),
@@ -254,118 +261,86 @@ public class SearchActivity extends AppCompatActivity {
         return list.get(randomIndex);
     }
 
-//    private AlbumTrackList getPreviousTrack() {
-//        for (int i = 0; i < albumTrackLists.size(); i++) {
-//            if (albumTrackLists.get(i).getCurrentSongUrl().equals(currentSongUrl) && i > 0) {
-//                Log.d("ListMusicActivity", "Previous Track: " + albumTrackLists.get(i - 1).getCurrentSongName());
-//                return albumTrackLists.get(i - 1);
-//            }
-//        }
-//        Log.d("ListMusicActivity", "No previous track found for: " + currentSongUrl);
-//        return null;
-//    }
-
-//    private AlbumTrackList getNextTrack() {
-//        for (int i = 0; i < albumTrackLists.size(); i++) {
-//            if (albumTrackLists.get(i).getCurrentSongUrl().equals(currentSongUrl) && i < albumTrackLists.size() - 1) {
-//                Log.d("ListMusicActivity", "Next Track: " + albumTrackLists.get(i + 1).getCurrentSongName());
-//                return albumTrackLists.get(i + 1);
-//            }
-//        }
-//        Log.d("ListMusicActivity", "No next track found for: " + currentSongUrl);
-//        return null;
-//    }
-
-    private void playMusic(String currentSongUrl) {
-        if (currentSongUrl != null) {
-            if (mediaPlayer != null) {
-                mediaPlayer.release(); // Giải phóng nếu đang phát
-            }
-            mediaPlayer = new MediaPlayer();
-            try {
-                mediaPlayer.setDataSource(currentSongUrl);
-                mediaPlayer.prepareAsync();
-                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
-
-                // Cài đặt lặp lại khi bài hát kết thúc theo chế độ lặp hiện tại
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    switch (loopFunction) {
-                        case 1: // NoRepeat
-                            Toast.makeText(SearchActivity.this, "No Repeat", Toast.LENGTH_SHORT).show();
-//                            // Nếu không lặp lại, phát bài tiếp theo
-//                            AlbumTrackList nextTrack = getNextTrack();
-//                            if (nextTrack != null) {
-//                                playMusic(nextTrack.getCurrentSongUrl());
-//                                songPlayerWidget.setSongPlayerView(
-//                                        nextTrack.getCurrentSongName(),
-//                                        nextTrack.getCurrentSongArtist(),
-//                                        nextTrack.getCurrentSongImage(),
-//                                        playFunction,
-//                                        loopFunction
-//                                );
-//                            }
-                            break;
-                        case 2: // Repeat
-                            playMusic(currentSongUrl); // Phát lại bài hiện tại
-                            break;
-                        case 3: // Shuffle
-//                            AlbumTrackList randomTrack = getRandomItem(albumTrackLists);
-//                            if (randomTrack != null) {
-//                                playMusic(randomTrack.getCurrentSongUrl());
-//                                songPlayerWidget.setSongPlayerView(
-//                                        randomTrack.getCurrentSongName(),
-//                                        randomTrack.getCurrentSongArtist(),
-//                                        randomTrack.getCurrentSongImage(),
-//                                        playFunction,
-//                                        loopFunction
-//                                );
-//                            }
-                            break;
-                    }
-                });
-                mediaPlayer.prepareAsync();  // Prepare the song
-                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
-            } catch (Exception e) {
-                Log.e("MediaPlayer", "Error setting data source", e);
-            }
+    public Track getPreviousTrack() {
+        int index = trackList.indexOf(currentTrack);
+        if (index > 0) {
+            return trackList.get(index - 1);
         } else {
-            Log.e("MediaPlayer", "Current song URL is null");
+            return trackList.get(trackList.size() - 1);
         }
     }
 
-    private void pauseMusic() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+    public Track getNextTrack() {
+        int index = trackList.indexOf(currentTrack);
+        if (index < trackList.size() - 1) {
+            return trackList.get(index + 1);
+        } else {
+            return trackList.get(0);
         }
     }
 
-    private void continueMusic() {
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-        }
-    }
 
-    private void stopMusic() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release(); // Giải phóng tài nguyên
-            mediaPlayer = null;
-        }
-    }
+//    private void playMusic(String currentSongUrl) {
+//        if (currentSongUrl != null) {
+//            if (mediaPlayer != null) {
+//                mediaPlayer.release(); // Giải phóng nếu đang phát
+//            }
+//            mediaPlayer = new MediaPlayer();
+//            try {
+//                mediaPlayer.setDataSource(currentSongUrl);
+//                mediaPlayer.prepareAsync();
+//                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
+//
+//                // Cài đặt lặp lại khi bài hát kết thúc theo chế độ lặp hiện tại
+//                mediaPlayer.setOnCompletionListener(mp -> {
+//                    switch (loopFunction) {
+//                        case 1: // NoRepeat
+//                            Toast.makeText(SearchActivity.this, "No Repeat", Toast.LENGTH_SHORT).show();
+////                            // Nếu không lặp lại, phát bài tiếp theo
+////                            AlbumTrackList nextTrack = getNextTrack();
+////                            if (nextTrack != null) {
+////                                playMusic(nextTrack.getCurrentSongUrl());
+////                                songPlayerWidget.setSongPlayerView(
+////                                        nextTrack.getCurrentSongName(),
+////                                        nextTrack.getCurrentSongArtist(),
+////                                        nextTrack.getCurrentSongImage(),
+////                                        playFunction,
+////                                        loopFunction
+////                                );
+////                            }
+//                            break;
+//                        case 2: // Repeat
+//                            playMusic(currentSongUrl); // Phát lại bài hiện tại
+//                            break;
+//                        case 3: // Shuffle
+////                            AlbumTrackList randomTrack = getRandomItem(albumTrackLists);
+////                            if (randomTrack != null) {
+////                                playMusic(randomTrack.getCurrentSongUrl());
+////                                songPlayerWidget.setSongPlayerView(
+////                                        randomTrack.getCurrentSongName(),
+////                                        randomTrack.getCurrentSongArtist(),
+////                                        randomTrack.getCurrentSongImage(),
+////                                        playFunction,
+////                                        loopFunction
+////                                );
+////                            }
+//                            break;
+//                    }
+//                });
+//                mediaPlayer.prepareAsync();  // Prepare the song
+//                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
+//            } catch (Exception e) {
+//                Log.e("MediaPlayer", "Error setting data source", e);
+//            }
+//        } else {
+//            Log.e("MediaPlayer", "Current song URL is null");
+//        }
+//    }
 
-    public void setCurrentSong(String url) {
-        currentSongUrl = url;
-    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
     }
 }

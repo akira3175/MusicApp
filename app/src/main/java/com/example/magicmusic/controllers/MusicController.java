@@ -4,14 +4,26 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 
+import com.example.magicmusic.models.Track;
 import com.example.magicmusic.services.MediaPlayerService;
 
 public class MusicController {
   private MediaPlayerService mediaPlayerService;
   private boolean isBound = false;
   private final Context context;
+  private OnServiceConnectedListener onServiceConnectedListener;
+
+  public interface OnServiceConnectedListener {
+    void onServiceConnected();
+  }
+
+  public void setOnServiceConnectedListener(OnServiceConnectedListener listener) {
+    this.onServiceConnectedListener = listener;
+  }
+
 
   public MusicController(Context context) {
     this.context = context;
@@ -25,6 +37,9 @@ public class MusicController {
       MediaPlayerService.MediaPlayerBinder binder = (MediaPlayerService.MediaPlayerBinder) service;
       mediaPlayerService = binder.getService();
       isBound = true;
+      if (onServiceConnectedListener != null) {
+        onServiceConnectedListener.onServiceConnected();
+      }
     }
 
     @Override
@@ -36,6 +51,12 @@ public class MusicController {
   public void playTrack(String url) {
     if (mediaPlayerService != null) {
       mediaPlayerService.playMusic(url);
+    }
+  }
+
+  public void playTrack(Track track) {
+    if (mediaPlayerService != null) {
+      mediaPlayerService.playMusic(track);
     }
   }
 
@@ -61,5 +82,16 @@ public class MusicController {
       isBound = false;
     }
   }
+
+  public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener) {
+    if (mediaPlayerService != null) {
+      mediaPlayerService.setOnCompletionListener(listener);
+    }
+  }
+
+  public Track getCurrentTrack() {
+    return mediaPlayerService != null ? mediaPlayerService.getCurrentTrack() : null;
+  }
+
 }
 

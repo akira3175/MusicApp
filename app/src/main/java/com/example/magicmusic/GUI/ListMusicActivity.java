@@ -1,7 +1,5 @@
 package com.example.magicmusic.GUI;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -9,13 +7,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,10 +21,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.R;
-import com.example.magicmusic.adapters.SongAdapter;
 import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
 import com.example.magicmusic.adapters.TrackAdapter;
+import com.example.magicmusic.controllers.MusicController;
 import com.example.magicmusic.models.AlbumTrackList;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.Track;
@@ -49,13 +45,12 @@ public class ListMusicActivity extends AppCompatActivity {
     private int currentPage = 1;  // Trang hiện tại
     private final int PAGE_SIZE = 10; // Số lượng bản nhạc mỗi trang
     private boolean isLoading = false; // Đánh dấu khi đang tải dữ liệu
-    private MediaPlayer mediaPlayer;
     private ProgressBar progressBar;
     private List<Track> tracks = new ArrayList<>();
 
     private TextView songTitle;
 //    private ImageButton playButton, pauseButton, stopButton;
-    private String currentSongUrl;
+    private int currentTrackIndex = -1;
     private RecyclerView recyclerView;
     private TrackAdapter trackAdapter;
     private RelativeLayout listContent;
@@ -69,6 +64,7 @@ public class ListMusicActivity extends AppCompatActivity {
     private int playFunction = 0;
     private int loopFunction = 1;
     RecyclerView trackList;
+    private MusicController musicController;
 
 
     @Override
@@ -82,8 +78,8 @@ public class ListMusicActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Track track, int index) {
                 // Khi một bài hát được nhấn, phát nhạc trực tiếp
-                currentSongUrl = track.getAudio();
-                playMusic(currentSongUrl);
+                currentTrackIndex = index;
+                musicController.playTrack(track);
 
                 // Cập nhật thông tin bài hát đang phát trên SongPlayerWidget
                 playFunction = 2; // Đặt trạng thái phát
@@ -99,13 +95,31 @@ public class ListMusicActivity extends AppCompatActivity {
         trackList.setAdapter(trackAdapter);
         setupScrollListener();
 
+        musicController = new MusicController(this);
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
+        // Đặt callback khi Service kết nối thành công
+        musicController.setOnServiceConnectedListener(() -> {
+            if (musicController.isPlaying()) {
+                Track track = musicController.getCurrentTrack();
+                if(track == null) return;
+                playFunction = 2;
+                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                songPlayerWidget.setSongPlayerView(
+                        track.getName(),
+                        track.getArtist_name(),
+                        track.getImage(),
+                        playFunction,
+                        loopFunction
+                );
+            } else {
+                Log.d("ListMusicActivity", "Music is not playing");
+            }
+        });
+
 
         progressBar = findViewById(R.id.progressBar);
-        showLoadingScreen();
-        SongContentView();
 
         Header();
         Logic();
@@ -118,9 +132,7 @@ public class ListMusicActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ListMusicActivity.this, MainActivity.class);
-                startActivity(intent);
-//                finish();
+                finish();
             }
         });
     }
@@ -209,53 +221,19 @@ public class ListMusicActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
     }
 
-    private void SongContentView() {
-//        TextView svNoContentNotify = findViewById(R.id.scroll_view_notify);
-//        scrollViewContainer.removeAllViews(); // Xóa các view cũ nếu có
-        if (albumTrackLists == null || albumTrackLists.isEmpty()) {
-//            svNoContentNotify.setText(R.string.favorite_empty_list);
-//            svNoContentNotify.setVisibility(View.VISIBLE);
-        } else {
-//            svNoContentNotify.setVisibility(View.GONE);
-            for (AlbumTrackList track : albumTrackLists) {
-                SongContentWidget songContentWidget = new SongContentWidget(this);
-                songContentWidget.setSongName(track.getCurrentSongName());
-                songContentWidget.setSongArtist(track.getCurrentSongArtist());
-                songContentWidget.setSongUrl(track.getCurrentSongUrl());
-                // Khi nhấn vào bài trên list
-                songContentWidget.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        playFunction = 2;
-                        songPlayerWidget.setSongPlayerView(
-                                songContentWidget.getSongName(),
-                                songContentWidget.getSongArtist(),
-                                playFunction,
-                                loopFunction
-                        );
-                        playMusic(songContentWidget.getSongUrl());
-                        // Cập nhật bài hiện tại
-                        currentSongUrl = songContentWidget.getSongUrl();
-                    }
-                });
-                scrollViewContainer.addView(songContentWidget);
-            }
-        }
-    }
-
     private void Logic() {
         playButton = songPlayerWidget.getRootView().findViewById(R.id.play_button);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSongUrl != null) {
-                    if (mediaPlayer.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
+                if (currentTrackIndex != -1) {
+                    if (musicController.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
                         playFunction = 1;
-                        pauseMusic();
+                        musicController.pauseTrack();
                         songPlayerWidget.setPlayButtonState(playFunction);
-                    } else if (!mediaPlayer.isPlaying() && playFunction == 1) {    // Từ Pause sang Play
+                    } else if (!musicController.isPlaying() && playFunction == 1) {    // Từ Pause sang Play
                         playFunction = 2;
-                        continueMusic();
+                        musicController.resumeTrack();
                         songPlayerWidget.setPlayButtonState(playFunction);
                     }
                 }
@@ -267,8 +245,8 @@ public class ListMusicActivity extends AppCompatActivity {
             AlbumTrackList previousTrack = getPreviousTrack();
             if (previousTrack != null) {
                 playFunction = 2;
-                currentSongUrl = previousTrack.getCurrentSongUrl();
-                playMusic(currentSongUrl);
+                currentTrackIndex = getPreviousTrackIndex();
+                musicController.playTrack(tracks.get(currentTrackIndex));
                 songPlayerWidget.setSongPlayerView(
                         previousTrack.getCurrentSongName(),
                         previousTrack.getCurrentSongArtist(),
@@ -286,8 +264,8 @@ public class ListMusicActivity extends AppCompatActivity {
             AlbumTrackList nextTrack = getNextTrack();
             if (nextTrack != null) {
                 playFunction = 2;
-                currentSongUrl = nextTrack.getCurrentSongUrl();
-                playMusic(currentSongUrl);
+                currentTrackIndex = getNextTrackIndex();
+                musicController.playTrack(tracks.get(currentTrackIndex));
                 songPlayerWidget.setSongPlayerView(
                         nextTrack.getCurrentSongName(),
                         nextTrack.getCurrentSongArtist(),
@@ -318,117 +296,33 @@ public class ListMusicActivity extends AppCompatActivity {
     }
 
     private AlbumTrackList getPreviousTrack() {
-        for (int i = 0; i < albumTrackLists.size(); i++) {
-            if (albumTrackLists.get(i).getCurrentSongUrl().equals(currentSongUrl) && i > 0) {
-                Log.d("ListMusicActivity", "Previous Track: " + albumTrackLists.get(i - 1).getCurrentSongName());
-                return albumTrackLists.get(i - 1);
-            }
-        }
-        Log.d("ListMusicActivity", "No previous track found for: " + currentSongUrl);
-        return null;
+        int previousIndex = getPreviousTrackIndex();
+        return albumTrackLists.get(previousIndex);
     }
 
     private AlbumTrackList getNextTrack() {
-        for (int i = 0; i < albumTrackLists.size(); i++) {
-            if (albumTrackLists.get(i).getCurrentSongUrl().equals(currentSongUrl) && i < albumTrackLists.size() - 1) {
-                Log.d("ListMusicActivity", "Next Track: " + albumTrackLists.get(i + 1).getCurrentSongName());
-                return albumTrackLists.get(i + 1);
-            }
-        }
-        Log.d("ListMusicActivity", "No next track found for: " + currentSongUrl);
-        return null;
-    }
-
-    private void playMusic(String currentSongUrl) {
-        if (currentSongUrl != null) {
-            if (mediaPlayer != null) {
-                mediaPlayer.release(); // Giải phóng nếu đang phát
-            }
-            mediaPlayer = new MediaPlayer();
-            try {
-                mediaPlayer.setDataSource(currentSongUrl);
-                mediaPlayer.prepareAsync();
-                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
-
-                // Cài đặt lặp lại khi bài hát kết thúc theo chế độ lặp hiện tại
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    switch (loopFunction) {
-                        case 1: // NoRepeat
-                            // Nếu không lặp lại, phát bài tiếp theo
-                            AlbumTrackList nextTrack = getNextTrack();
-                            if (nextTrack != null) {
-                                playMusic(nextTrack.getCurrentSongUrl());
-                                songPlayerWidget.setSongPlayerView(
-                                        nextTrack.getCurrentSongName(),
-                                        nextTrack.getCurrentSongArtist(),
-                                        nextTrack.getCurrentSongImage(),
-                                        playFunction,
-                                        loopFunction
-                                );
-                            }
-                            break;
-                        case 2: // Repeat
-                            playMusic(currentSongUrl); // Phát lại bài hiện tại
-                            break;
-                        case 3: // Shuffle
-                            AlbumTrackList randomTrack = getRandomItem(albumTrackLists);
-                            if (randomTrack != null) {
-                                playMusic(randomTrack.getCurrentSongUrl());
-                                songPlayerWidget.setSongPlayerView(
-                                        randomTrack.getCurrentSongName(),
-                                        randomTrack.getCurrentSongArtist(),
-                                        randomTrack.getCurrentSongImage(),
-                                        playFunction,
-                                        loopFunction
-                                );
-                            }
-                            break;
-                    }
-                });
-//                mediaPlayer.prepareAsync();  // Prepare the song
-                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
-            } catch (Exception e) {
-                Log.e("MediaPlayer", "Error setting data source", e);
-            }
-        } else {
-            Log.e("MediaPlayer", "Current song URL is null");
-        }
-    }
-
-    private void pauseMusic() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-        }
-    }
-
-    private void continueMusic() {
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-        }
-    }
-
-    private void stopMusic() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release(); // Giải phóng tài nguyên
-            mediaPlayer = null;
-        }
-    }
-
-    public void setCurrentSong(String url, String name) {
-        currentSongUrl = url;
-        songTitle.setText(name);  // Update song title
+        int nextIndex = getNextTrackIndex();
+        return albumTrackLists.get(nextIndex);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
+    }
+
+    public int getNextTrackIndex() {
+        if(currentTrackIndex < albumTrackLists.size()) {
+            return currentTrackIndex + 1;
+        } else {
+            return 0;
+        }
+    };
+
+    public int getPreviousTrackIndex() {
+        if (currentTrackIndex > 0) {
+            return currentTrackIndex - 1;
+        } else {
+            return albumTrackLists.size() - 1;
         }
     }
 }
