@@ -25,6 +25,7 @@ import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.PlaylistAdapter;
 import com.example.magicmusic.adapters.ImageSliderAdapter;
+import com.example.magicmusic.controllers.MusicController;
 import com.example.magicmusic.models.Playlist;
 import com.example.magicmusic.models.PlaylistResponse;
 //import com.example.magicmusic.models.TrackResponse;
@@ -46,14 +47,12 @@ import retrofit2.Response;
 * */
 
 public class MainActivity extends AppCompatActivity {
-    public static final String CLIENT_ID = "ec0e93fa";
-    ViewPager2 viewPager;
-    List<Integer> imageList;
-    RecyclerView recyclerView;
-//    ProgressBar progressBar;
-    ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
-    ArrayList<Playlist> allPlaylists;
-    PlaylistAdapter playlistAdapter;
+    private ViewPager2 viewPager;
+    private List<Integer> imageList;
+    private RecyclerView recyclerView;
+    private ArrayList<Integer> popularPlaylistIds = new ArrayList<>();
+    private ArrayList<Playlist> allPlaylists;
+    private PlaylistAdapter playlistAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton favoriteButton = findViewById(R.id.favorite_button);
         favoriteButton.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "Coming soon", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, FavoriteActivity.class);
+            startActivity(intent);
         });
 
         ImageButton searchButton = findViewById(R.id.search_button);
@@ -82,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
         //popular playlistID
         popularPlaylistIds.addAll(List.of(500608490, 500608900, 500608899
                 , 500608901, 500608471, 500607433, 500606825, 500605606, 500605176, 500602528, 500599669));
-
 
         //slider
         viewPager = findViewById(R.id.slider);
@@ -99,16 +96,16 @@ public class MainActivity extends AppCompatActivity {
 
         //playlists
         recyclerView = findViewById(R.id.list);
-        int numberOfColumns = 2;
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+
 
         setUpRecycleView();
         fetchPlaylistsByIds(popularPlaylistIds);
 
-
     }
 
     private void setUpRecycleView() {
+        int numberOfColumns = 2;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
         // Danh sách để lưu tất cả các playlist đã tải về
         allPlaylists = new ArrayList<>();
         // Cập nhật giao diện hoặc adapter sau khi nhận được phản hồi
@@ -117,9 +114,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(Playlist playlist) {
                 Log.d("Jamendo", "fetching playlist: " + playlist.getId());
                 //Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
-                Intent intent = new Intent(MainActivity.this, DemoPlaylistTrackActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListMusicActivity.class);
                 intent.putExtra("playlistId", playlist.getId());
                 startActivity(intent);
+                finish();
             }
         });
         recyclerView.setAdapter(playlistAdapter);
@@ -137,8 +135,6 @@ public class MainActivity extends AppCompatActivity {
                         List<Playlist> playlists = response.body().getResults();
                         for (Playlist playlist : playlists) {
                             playlistAdapter.insertItem(playlist);
-                            Log.d("Jamendo", "Playlist ID: " + playlist.getId());
-                            Log.d("Jamendo", "Playlist Name: " + playlist.getName());
                         }
                     } else {
                         Log.e("Jamendo", "No playlists found or response failed for ID: " + id);

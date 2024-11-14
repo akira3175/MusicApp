@@ -49,7 +49,7 @@ public class SearchActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.searchInput);
         resultsText = findViewById(R.id.resultsText);
         Button searchButton = findViewById(R.id.searchButton);
-        playButton = (ImageButton) findViewById(R.id.btnPlay);
+        playButton = (ImageButton) findViewById(R.id.play_button);
         playButton.setTag(android.R.drawable.ic_media_play);
         playButton.setImageResource(android.R.drawable.ic_media_play);
 
@@ -123,6 +123,15 @@ public class SearchActivity extends AppCompatActivity {
                 pauseMusic(); // Gọi phương thức dừng nhạc
                 playButton.setImageResource(android.R.drawable.ic_media_play);
                 playButton.setTag(android.R.drawable.ic_media_play); // Cập nhật tag
+            }
+        });
+
+        //Nút Back
+        ImageButton backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
@@ -208,7 +217,7 @@ public class SearchActivity extends AppCompatActivity {
 
     public void setCurrentSong(String url, String name) {
         currentSongUrl = url;
-        songTitle = (TextView) findViewById(R.id.txtMusicPlay);
+        songTitle = (TextView) findViewById(R.id.song_title);
         songTitle.setText(name); // Cập nhật tên bài hát
     }
 
