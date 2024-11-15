@@ -14,6 +14,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
+
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.R;
 import com.example.magicmusic.models.Track;
 import com.example.magicmusic.receivers.NotificationReceiver;
@@ -25,6 +27,7 @@ public class MediaPlayerService extends Service {
   private MediaPlayer mediaPlayer;
   private boolean isPlaying = false;
   private Track currentTrack;
+  private FavoriteTrackDTO currentfTrack;
   private static final String CHANNEL_ID = "MusicPlayerChannel";
   private static final int NOTIFICATION_ID = 1;
   private MediaPlayer.OnPreparedListener onPreparedListener = (mp) -> {};
@@ -70,6 +73,26 @@ public class MediaPlayerService extends Service {
     }
     try {
       mediaPlayer.setDataSource(track.getAudio());
+      mediaPlayer.prepareAsync();
+      mediaPlayer.setOnPreparedListener(mp -> {
+        mp.start();
+        isPlaying = true;
+        onPreparedListener.onPrepared(mp);
+      });
+    } catch (IOException e) {
+      Log.e("MediaPlayerService", "Error setting data source", e);
+    }
+  }
+
+  public void playMusic(FavoriteTrackDTO ftrack) {
+    currentfTrack = ftrack;
+    showNotification();
+    if (isPlaying) {
+      mediaPlayer.stop();
+      mediaPlayer.reset();
+    }
+    try {
+      mediaPlayer.setDataSource(ftrack.getSongUrl());
       mediaPlayer.prepareAsync();
       mediaPlayer.setOnPreparedListener(mp -> {
         mp.start();
@@ -170,6 +193,14 @@ public class MediaPlayerService extends Service {
 
   public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
     this.onPreparedListener = onPreparedListener;
+  }
+
+  public MediaPlayer getMediaPlayer() {
+    return mediaPlayer;
+  }
+
+  public FavoriteTrackDTO getCurrentfTrack() {
+    return currentfTrack;
   }
 }
 

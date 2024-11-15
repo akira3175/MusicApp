@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.magicmusic.API.ApiClient;
 import com.example.magicmusic.API.JamendoApi;
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongAdapter;
 import com.example.magicmusic.adapters.TrackAdapter;
@@ -81,16 +82,30 @@ public class SearchActivity extends AppCompatActivity {
         musicController.setOnServiceConnectedListener(() -> {
             if (musicController.isPlaying()) {
                 Track track = musicController.getCurrentTrack();
-                if(track == null) return;
-                playFunction = 2;
-                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
-                songPlayerWidget.setSongPlayerView(
-                        track.getName(),
-                        track.getArtist_name(),
-                        track.getImage(),
-                        playFunction,
-                        loopFunction
-                );
+                FavoriteTrackDTO ftrack = musicController.getCurrentfTrack();
+                if(track == null && ftrack == null) return;
+                if(track != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                    songPlayerWidget.setSongPlayerView(
+                            track.getName(),
+                            track.getArtist_name(),
+                            track.getImage(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
+                else if(ftrack != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + ftrack.getSongName());
+                    songPlayerWidget.setSongPlayerView(
+                            ftrack.getSongName(),
+                            ftrack.getSongArtist(),
+                            ftrack.getSongImageUrl(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
             } else {
                 Log.d("ListMusicActivity", "Music is not playing");
             }

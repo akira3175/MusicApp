@@ -22,6 +22,14 @@ public class Track {
   @SerializedName("image")
   private String image;
 
+  public Track(int id, String name, String artist_name, String audio, String image) {
+    this.id = id;
+    this.name = name;
+    this.artist_name = artist_name;
+    this.audio = audio;
+    this.image = image;
+  }
+
   public int getId() {
     return id;
   }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.magicmusic.API.JamendoApi;
 import com.example.magicmusic.API.ApiClient;
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.R;
 import com.example.magicmusic.adapters.SongContentWidget;
 import com.example.magicmusic.adapters.SongPlayerWidget;
@@ -94,29 +95,41 @@ public class ListMusicActivity extends AppCompatActivity {
             }
         });
         trackList.setAdapter(trackAdapter);
-        setupScrollListener();
-
-        musicController = new MusicController(this, (mediaPlayer) -> {
-            hideLoadingScreen();
-        });
+        musicController = new MusicController(this, this::mediaOnPrepared, this::mediaOnCompletion);
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
+
+        setupScrollListener();
+
         // Đặt callback khi Service kết nối thành công
         musicController.setOnServiceConnectedListener(() -> {
             if (musicController.isPlaying()) {
                 Track track = musicController.getCurrentTrack();
-                if(track == null) return;
-                playFunction = 2;
-                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
-                songPlayerWidget.setSongPlayerView(
-                        track.getName(),
-                        track.getArtist_name(),
-                        track.getImage(),
-                        playFunction,
-                        loopFunction
-                );
-                hideLoadingScreen();
+                FavoriteTrackDTO ftrack = musicController.getCurrentfTrack();
+                if(track == null && ftrack == null) return;
+                if(track != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                    songPlayerWidget.setSongPlayerView(
+                            track.getName(),
+                            track.getArtist_name(),
+                            track.getImage(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
+                else if(ftrack != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + ftrack.getSongName());
+                    songPlayerWidget.setSongPlayerView(
+                            ftrack.getSongName(),
+                            ftrack.getSongArtist(),
+                            ftrack.getSongImageUrl(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
             } else {
                 Log.d("ListMusicActivity", "Music is not playing");
             }
@@ -265,22 +278,7 @@ public class ListMusicActivity extends AppCompatActivity {
 
         playNextButton = songPlayerWidget.getRootView().findViewById(R.id.play_next_button);
         playNextButton.setOnClickListener(v -> {
-            AlbumTrackList nextTrack = getNextTrack();
-            if (nextTrack != null) {
-                playFunction = 2;
-                currentTrackIndex = getNextTrackIndex();
-                showLoadingScreen();
-                musicController.playTrack(tracks.get(currentTrackIndex));
-                songPlayerWidget.setSongPlayerView(
-                        nextTrack.getCurrentSongName(),
-                        nextTrack.getCurrentSongArtist(),
-                        nextTrack.getCurrentSongImage(),
-                        playFunction,
-                        loopFunction
-                );
-            } else {
-                Log.d("ListMusicActivity", "No next track available");
-            }
+            playNextTrack();
         });
 
         loopButton = songPlayerWidget.getRootView().findViewById(R.id.play_mode_button);
@@ -289,6 +287,51 @@ public class ListMusicActivity extends AppCompatActivity {
             songPlayerWidget.setLoopButtonState(loopFunction);
             Log.d("ListMusicActivity", "Loop mode changed to: " + loopFunction);
         });
+    }
+
+    public void playNextTrack() {
+        AlbumTrackList nextTrack = getNextTrack();
+        if (nextTrack != null) {
+            playFunction = 2;
+            currentTrackIndex = getNextTrackIndex();
+            showLoadingScreen();
+            musicController.playTrack(tracks.get(currentTrackIndex));
+            songPlayerWidget.setSongPlayerView(
+                    nextTrack.getCurrentSongName(),
+                    nextTrack.getCurrentSongArtist(),
+                    nextTrack.getCurrentSongImage(),
+                    playFunction,
+                    loopFunction
+            );
+        } else {
+            Log.d("ListMusicActivity", "No next track available");
+        }
+    }
+
+    private void mediaOnPrepared(MediaPlayer mediaPlayer) {
+        hideLoadingScreen();
+    }
+
+    private void mediaOnCompletion(MediaPlayer mediaPlayer) {
+        {
+            switch (loopFunction) {
+                case 1: // NoRepeat
+                    playNextTrack();
+                    break;
+                case 2: // Repeat
+                    //plat current track
+                    musicController.playTrack(tracks.get(currentTrackIndex));
+                    break;
+                case 3: // Shuffle
+                    Track track = getRandomItem((ArrayList<Track>) tracks);
+                    if (track != null) {
+                        musicController.playTrack(track);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private static <T> T getRandomItem(ArrayList<T> list) {

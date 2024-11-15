@@ -82,17 +82,33 @@ public class FavoriteActivity extends AppCompatActivity {
         // Đặt callback khi Service kết nối thành công
         musicController.setOnServiceConnectedListener(() -> {
             if (musicController.isPlaying()) {
+                songPlayerWidget.setVisibility(View.VISIBLE);
                 Track track = musicController.getCurrentTrack();
-                if(track == null) return;
-                playFunction = 2;
-                Log.d("ListMusicActivity", "Music is playing: " + track.getName());
-                songPlayerWidget.setSongPlayerView(
-                        track.getName(),
-                        track.getArtist_name(),
-                        track.getImage(),
-                        playFunction,
-                        loopFunction
-                );
+                FavoriteTrackDTO ftrack = musicController.getCurrentfTrack();
+                if(track == null && ftrack == null) return;
+                if(track != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + track.getName());
+                    songPlayerWidget.setSongPlayerView(
+                            track.getName(),
+                            track.getArtist_name(),
+                            track.getImage(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
+                else if(ftrack != null) {
+                    playFunction = 2;
+                    Log.d("ListMusicActivity", "Music is playing: " + ftrack.getSongName());
+                    songPlayerWidget.setSongPlayerView(
+                            ftrack.getSongName(),
+                            ftrack.getSongArtist(),
+                            ftrack.getSongImageUrl(),
+                            playFunction,
+                            loopFunction
+                    );
+                }
+                mediaPlayer = musicController.getMediaPlayer();
             } else {
                 Log.d("ListMusicActivity", "Music is not playing");
             }
@@ -143,10 +159,6 @@ public class FavoriteActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                stopMusic();
-                startActivity(intent);
                 finish(); // Kết thúc FavoriteActivity
             }
         });
@@ -165,11 +177,11 @@ public class FavoriteActivity extends AppCompatActivity {
                     if (downloadedSongs != null && !downloadedSongs.isEmpty()) {
                         playFunction = 2;
                         currentSongUrl = downloadedSongs.get(0).getSongUrl(); // Cập nhật bài đầu tiên của downloadedSongs
-                        playMusic(currentSongUrl);
+                        playMusic(downloadedSongs.get(0));
                         songPlayerWidget.setSongPlayerView(
                                 downloadedSongs.get(0).getSongName(),
                                 downloadedSongs.get(0).getSongArtist(),
-                                null,
+                                downloadedSongs.get(0).getSongImageUrl(),
                                 playFunction,
                                 loopFunction
                         );
@@ -184,7 +196,7 @@ public class FavoriteActivity extends AppCompatActivity {
                     if (favoriteTrackLists != null && !favoriteTrackLists.isEmpty()) {
                         playFunction = 2;
                         currentSongUrl = favoriteTrackLists.get(0).getSongUrl(); // Cập nhật bài đầu tiên của favoriteTrackLists
-                        playMusic(currentSongUrl);
+                        playMusic(downloadedSongs.get(0));
                         songPlayerWidget.setSongPlayerView(
                                 favoriteTrackLists.get(0).getSongName(),
                                 favoriteTrackLists.get(0).getSongArtist(),
@@ -267,6 +279,7 @@ public class FavoriteActivity extends AppCompatActivity {
                 SongContentView();
             }
         });
+        SongContentView();
     }
 
     private void SongContentView() {
@@ -317,7 +330,7 @@ public class FavoriteActivity extends AppCompatActivity {
         setupMediaPlayerForSong(songContentWidget, track);
 
         // Xử lý sự kiện nhấn widget -> chạy nhạc
-        songContentWidget.setOnClickListener(v -> playSong(songContentWidget));
+        songContentWidget.setOnClickListener(v -> playSong(songContentWidget, track));
 
         // Xử lý sự kiện nhấn nút Favorite
         songContentWidget.getSongFavoriteButton().setOnClickListener(v -> toggleFavorite(track, songContentWidget, db));
@@ -327,7 +340,7 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     private void setupMediaPlayerForSong(SongContentWidget songContentWidget, FavoriteTrackDTO track) {
-        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
 
         try {
             Uri songUri = Uri.parse(track.getSongUrl());
@@ -362,6 +375,34 @@ public class FavoriteActivity extends AppCompatActivity {
         );
         playMusic(songContentWidget.getSongUrl());
         currentSongUrl = songContentWidget.getSongUrl();
+        songContentWidget.setVisibility(View.VISIBLE);
+        songPlayerWidget.setVisibility(View.VISIBLE);
+    }
+    private void playSong(SongContentWidget songContentWidget, FavoriteTrackDTO track) {
+        playFunction = 2;
+        if(track != null) {
+            songPlayerWidget.setSongPlayerView(
+                    track.getSongName(),
+                    track.getSongArtist(),
+                    track.getSongImageUrl(),
+                    playFunction,
+                    loopFunction
+            );
+            playMusic(track);
+            currentSongUrl = track.getSongUrl();
+        }
+        else {
+            songPlayerWidget.setSongPlayerView(
+                    songContentWidget.getSongName(),
+                    songContentWidget.getSongArtist(),
+                    songContentWidget.getSongImageUrl(),
+                    playFunction,
+                    loopFunction
+            );
+            playMusic(songContentWidget.getSongUrl());
+            currentSongUrl = songContentWidget.getSongUrl();
+        }
+
         songContentWidget.setVisibility(View.VISIBLE);
         songPlayerWidget.setVisibility(View.VISIBLE);
     }
@@ -418,7 +459,7 @@ public class FavoriteActivity extends AppCompatActivity {
             if (previousTrack != null) {
                 playFunction = 2;
                 currentSongUrl = previousTrack.getSongUrl();
-                playMusic(currentSongUrl);
+                playMusic(previousTrack);
                 songPlayerWidget.setSongPlayerView(
                         previousTrack.getSongName(),
                         previousTrack.getSongArtist(),
@@ -437,7 +478,7 @@ public class FavoriteActivity extends AppCompatActivity {
             if (nextTrack != null) {
                 playFunction = 2;
                 currentSongUrl = nextTrack.getSongUrl();
-                playMusic(currentSongUrl);
+                playMusic(nextTrack);
                 songPlayerWidget.setSongPlayerView(
                         nextTrack.getSongName(),
                         nextTrack.getSongArtist(),
@@ -570,6 +611,56 @@ public class FavoriteActivity extends AppCompatActivity {
         }
     }
 
+    private void playMusic(FavoriteTrackDTO ftrack) {
+        try {
+            @SuppressLint("UseSwitchCompatOrMaterialCode")
+            Switch downloadMaterialButton = findViewById(R.id.favorite_switch);
+            if (!downloadMaterialButton.isChecked()) {
+                musicController.playTrack(ftrack);
+            } else {
+                Uri songUri = Uri.parse(ftrack.getSongUrl());
+                //********* CHIU **********
+                mediaPlayer.setDataSource(this, songUri);
+            }
+            mediaPlayer.prepareAsync();
+
+            // Cài đặt lặp lại khi bài hát kết thúc theo chế độ lặp hiện tại
+            mediaPlayer.setOnCompletionListener(mp -> {
+                switch (loopFunction) {
+                    case 1: // NoRepeat
+                        if (getNextTrack().getSongUrl() == null)
+                            stopMusic();
+                        else
+                            musicController.playTrack(getNextTrack());
+                        break;
+                    case 2: // Repeat
+                        musicController.playTrack(ftrack);
+                        break;
+                    case 3: // Shuffle
+                        FavoriteTrackDTO randomTrack;
+                        if (!downloadMaterialButton.isChecked())
+                            randomTrack = getRandomItem(favoriteTrackLists);
+                        else
+                            randomTrack = getRandomItem(downloadedSongs);
+
+                        if (randomTrack != null) {
+                            musicController.playTrack(randomTrack);
+                            songPlayerWidget.setSongPlayerView(
+                                    randomTrack.getSongName(),
+                                    randomTrack.getSongArtist(),
+                                    randomTrack.getSongImageUrl(),
+                                    playFunction,
+                                    loopFunction
+                            );
+                        }
+                        break;
+                }
+            });
+        } catch (Exception e) {
+            Log.e("MediaPlayer", "Error setting data source", e);
+        }
+    }
+
     private void pauseMusic() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -593,10 +684,6 @@ public class FavoriteActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release(); // Giải phóng tài nguyên khi không còn cần thiết
-            mediaPlayer = null;
-        }
     }
 
     // Thao tác với Database

@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 
+import com.example.magicmusic.Database.FavoriteTrackDTO;
 import com.example.magicmusic.models.Track;
 import com.example.magicmusic.services.MediaPlayerService;
 
@@ -16,6 +17,7 @@ public class MusicController {
   private final Context context;
   private OnServiceConnectedListener onServiceConnectedListener;
   private MediaPlayer.OnPreparedListener onPreparedListener = (mediaPlayer) -> {};
+  private MediaPlayer.OnCompletionListener onCompletionListener = (mediaPlayer) -> {};
 
   public interface OnServiceConnectedListener {
     void onServiceConnected();
@@ -24,7 +26,6 @@ public class MusicController {
   public void setOnServiceConnectedListener(OnServiceConnectedListener listener) {
     this.onServiceConnectedListener = listener;
   }
-
 
   public MusicController(Context context) {
     this.context = context;
@@ -39,6 +40,14 @@ public class MusicController {
     this.onPreparedListener = onPreparedListener;
   }
 
+  public MusicController(Context context, MediaPlayer.OnPreparedListener onPreparedListener, MediaPlayer.OnCompletionListener onCompletionListener) {
+    this.context = context;
+    Intent intent = new Intent(context, MediaPlayerService.class);
+    context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    this.onPreparedListener = onPreparedListener;
+    this.onCompletionListener = onCompletionListener;
+  }
+
   private final ServiceConnection serviceConnection = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -49,6 +58,7 @@ public class MusicController {
         onServiceConnectedListener.onServiceConnected();
       }
       mediaPlayerService.setOnPreparedListener(onPreparedListener);
+      mediaPlayerService.setOnCompletionListener(onCompletionListener);
     }
 
     @Override
@@ -60,6 +70,12 @@ public class MusicController {
   public void playTrack(Track track) {
     if (mediaPlayerService != null) {
       mediaPlayerService.playMusic(track);
+    }
+  }
+
+  public void playTrack(FavoriteTrackDTO ftrack) {
+    if (mediaPlayerService != null) {
+      mediaPlayerService.playMusic(ftrack);
     }
   }
 
@@ -96,10 +112,18 @@ public class MusicController {
     return mediaPlayerService != null ? mediaPlayerService.getCurrentTrack() : null;
   }
 
+  public FavoriteTrackDTO getCurrentfTrack() {
+    return mediaPlayerService != null ? mediaPlayerService.getCurrentfTrack() : null;
+  }
+
   public void setOnPreparedListener(MediaPlayer.OnPreparedListener listener) {
     if (onPreparedListener != null) {
       onPreparedListener = listener;
     }
+  }
+
+  public MediaPlayer getMediaPlayer() {
+    return mediaPlayerService != null ? mediaPlayerService.getMediaPlayer() : null;
   }
 
 }
