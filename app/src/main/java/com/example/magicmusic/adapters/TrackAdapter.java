@@ -1,5 +1,6 @@
 package com.example.magicmusic.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 import android.util.Log;
@@ -67,47 +68,53 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
       trackTitle.setText(track.getName());
       trackArtist.setText(track.getArtist_name());
 
-      FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
-      selectAll(db);
-      boolean getFavFlag = false;
-      if (favoriteTrackLists != null) {
-        for (FavoriteTrackDTO t : favoriteTrackLists) {
-          if (t.getSongId() == track.getId()) {
-            getFavFlag = t.getIsFavorite();
-
-          }
-        }
+      // Tải ảnh bìa album trên luồng chính
+      if (context instanceof Activity) {
+        ((Activity) context).runOnUiThread(() -> {
+          Glide.with(context)
+                  .load(track.getImage())
+                  .placeholder(R.drawable.ic_music_note)
+                  .into(albumCover);
+        });
+      } else {
+        Log.e("TrackAdapter", "Context is not an Activity instance, cannot use runOnUiThread()");
       }
-      Log.d("Check", track.getId() + "");
-      Glide.with(context)
-              .load(track.getImage())
-              .placeholder(R.drawable.ic_music_note)
-              .into(albumCover);
 
-      itemView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          listener.onItemClick(track, position);
+      FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
+      executorService.execute(() -> {
+        FavoriteTrackDTO favoriteTrack = db.favoriteTrackDao().getFavoriteTrack(track.getId());
+        boolean getFavFlag = favoriteTrack != null && favoriteTrack.getIsFavorite();
+
+        // Cập nhật trạng thái favorite trên luồng chính
+        if (context instanceof Activity) {
+          ((Activity) context).runOnUiThread(() -> {
+            if (getFavFlag)
+              favButton.setImageResource(R.drawable.ic_favorite);
+            else
+              favButton.setImageResource(R.drawable.ic_non_favorite);
+
+            favButton.setOnClickListener(v -> {
+              boolean getFavFlag2 = !getFavFlag;
+              favButton.setImageResource(getFavFlag2 ? R.drawable.ic_favorite : R.drawable.ic_non_favorite);
+
+              FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), getFavFlag2);
+              if (getFavFlag2)
+                insert(db, f);
+              else
+                delete(db, f);
+            });
+          });
+        } else {
+          Log.e("TrackAdapter", "Context is not an Activity instance, cannot use runOnUiThread()");
         }
-      });
 
-      boolean finalGetFavFlag = getFavFlag;
-      if (getFavFlag)
-        favButton.setImageResource(R.drawable.ic_favorite);
-      else
-        favButton.setImageResource(R.drawable.ic_non_favorite);
-
-      favButton.setOnClickListener(new View.OnClickListener() {
-        boolean isFavorite = finalGetFavFlag;
-
-        @Override
-        public void onClick(View v) {
-          isFavorite = !isFavorite; // Chuyển trạng thái yêu thích
-          favButton.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_non_favorite);
-
-          FavoriteTrackDatabase db = DatabaseInstance.getDatabase(context);
-          FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), isFavorite);
-          insert(db, f);
+        // Đặt click listener cho itemView
+        if (context instanceof Activity) {
+          ((Activity) context).runOnUiThread(() -> {
+            itemView.setOnClickListener(v -> listener.onItemClick(track, position));
+          });
+        } else {
+          Log.e("TrackAdapter", "Context is not an Activity instance, cannot use runOnUiThread()");
         }
       });
     }
@@ -181,6 +188,22 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
       });
     } else {
       Log.e("Database", "Database chưa được khởi tạo");
+    }
+  }
+
+  public static void delete(FavoriteTrackDatabase db, FavoriteTrackDTO trackToDelete) {
+    Log.d("Database", "deleteTrackAdapter called");
+    if (db != null) {
+      executorService.execute(() -> {
+        try {
+          db.favoriteTrackDao().deleteFavoriteTrack(trackToDelete);
+          Log.d("Database", "Deleted track ID: " + trackToDelete.getSongId());
+        } catch (Exception e) {
+          Log.e("Database", "Error executing query: " + e.getMessage());
+        }
+      });
+    } else {
+      Log.e("Database", "Database not initialized");
     }
   }
 }

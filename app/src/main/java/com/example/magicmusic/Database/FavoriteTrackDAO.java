@@ -31,4 +31,8 @@ public interface FavoriteTrackDAO {
 
     @Query("SELECT * FROM FavoriteTrackDatabase")
     List<FavoriteTrackDTO> getAllFavoriteTracks();
+
+    @Query("SELECT * FROM FavoriteTrackDatabase WHERE songId = :trackId")
+    FavoriteTrackDTO getFavoriteTrack(long trackId);
+
 }
