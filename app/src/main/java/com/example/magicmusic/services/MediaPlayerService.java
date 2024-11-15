@@ -27,6 +27,7 @@ public class MediaPlayerService extends Service {
   private Track currentTrack;
   private static final String CHANNEL_ID = "MusicPlayerChannel";
   private static final int NOTIFICATION_ID = 1;
+  private MediaPlayer.OnPreparedListener onPreparedListener = (mp) -> {};
 
   public class MediaPlayerBinder extends Binder {
     public MediaPlayerService getService() {
@@ -60,24 +61,6 @@ public class MediaPlayerService extends Service {
     return START_STICKY;
   }
 
-
-  public void playMusic(String url) {
-    if (isPlaying) {
-      mediaPlayer.stop();
-      mediaPlayer.reset();
-    }
-    try {
-      mediaPlayer.setDataSource(url);
-      mediaPlayer.prepareAsync();
-      mediaPlayer.setOnPreparedListener(mp -> {
-        mp.start();
-        isPlaying = true;
-      });
-    } catch (IOException e) {
-      Log.e("MediaPlayerService", "Error setting data source", e);
-    }
-  }
-
   public void playMusic(Track track) {
     currentTrack = track;
     showNotification();
@@ -91,6 +74,7 @@ public class MediaPlayerService extends Service {
       mediaPlayer.setOnPreparedListener(mp -> {
         mp.start();
         isPlaying = true;
+        onPreparedListener.onPrepared(mp);
       });
     } catch (IOException e) {
       Log.e("MediaPlayerService", "Error setting data source", e);
@@ -184,5 +168,8 @@ public class MediaPlayerService extends Service {
     startForeground(NOTIFICATION_ID, builder.build());
   }
 
+  public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
+    this.onPreparedListener = onPreparedListener;
+  }
 }
 

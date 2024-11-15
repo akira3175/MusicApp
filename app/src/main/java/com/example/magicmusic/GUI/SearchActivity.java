@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +47,7 @@ public class SearchActivity extends AppCompatActivity {
     private TextView songTitle;
     private RelativeLayout listContent;
     private SongPlayerWidget songPlayerWidget;
+    private ProgressBar progressBar;
 
     private int currentTrackIndex;
     private ImageButton prevButton;
@@ -70,8 +72,11 @@ public class SearchActivity extends AppCompatActivity {
         songPlayerWidget = new SongPlayerWidget(SearchActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
+        progressBar = findViewById(R.id.progressBar);
 
-        musicController = new MusicController(this);
+        musicController = new MusicController(this, (md) -> {
+            hideLoadingScreen();
+        });
         // Đặt callback khi Service kết nối thành công
         musicController.setOnServiceConnectedListener(() -> {
             if (musicController.isPlaying()) {
@@ -94,7 +99,6 @@ public class SearchActivity extends AppCompatActivity {
         // Xử lý đóng intent search
         prevButton.setOnClickListener(v -> {
             finish();
-            onDestroy();
         });
 
         // Xử lý khi người dùng nhấn nút tìm kiếm
@@ -135,6 +139,7 @@ public class SearchActivity extends AppCompatActivity {
                                 track.getArtist_name(),
                                 track.getImage(),
                                 playFunction, loopFunction);
+                        showLoadingScreen();
                         musicController.playTrack(track);
                     });
 
@@ -174,6 +179,7 @@ public class SearchActivity extends AppCompatActivity {
                                         track.getArtist_name(),
                                         track.getImage(),
                                         playFunction, loopFunction);
+                                showLoadingScreen();
                                 musicController.playTrack(track);
                             });
 
@@ -216,6 +222,7 @@ public class SearchActivity extends AppCompatActivity {
             currentTrack = getPreviousTrack();
             if (currentTrack != null) {
                 playFunction = 2;
+                showLoadingScreen();
                 musicController.playTrack(currentTrack);
                 songPlayerWidget.setSongPlayerView(
                         currentTrack.getName(),
@@ -234,6 +241,7 @@ public class SearchActivity extends AppCompatActivity {
             currentTrack = getNextTrack();
             if (currentTrack != null) {
                 playFunction = 2;
+                showLoadingScreen();
                 musicController.playTrack(currentTrack);
                 songPlayerWidget.setSongPlayerView(
                         currentTrack.getName(),
@@ -253,6 +261,16 @@ public class SearchActivity extends AppCompatActivity {
             songPlayerWidget.setLoopButtonState(loopFunction);
             Log.d("ListMusicActivity", "Loop mode changed to: " + loopFunction);
         });
+    }
+
+    private void showLoadingScreen() {
+        Log.d("ListMusicActivity", "Loading screen shown");
+        progressBar.setVisibility(View.VISIBLE); // Hiển thị ProgressBar
+    }
+
+    private void hideLoadingScreen() {
+        Log.d("ListMusicActivity", "Loading screen hidden");
+        progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
     }
 
     private static <T> T getRandomItem(ArrayList<T> list) {
@@ -281,65 +299,6 @@ public class SearchActivity extends AppCompatActivity {
             return trackList.get(0);
         }
     }
-
-
-//    private void playMusic(String currentSongUrl) {
-//        if (currentSongUrl != null) {
-//            if (mediaPlayer != null) {
-//                mediaPlayer.release(); // Giải phóng nếu đang phát
-//            }
-//            mediaPlayer = new MediaPlayer();
-//            try {
-//                mediaPlayer.setDataSource(currentSongUrl);
-//                mediaPlayer.prepareAsync();
-//                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
-//
-//                // Cài đặt lặp lại khi bài hát kết thúc theo chế độ lặp hiện tại
-//                mediaPlayer.setOnCompletionListener(mp -> {
-//                    switch (loopFunction) {
-//                        case 1: // NoRepeat
-//                            Toast.makeText(SearchActivity.this, "No Repeat", Toast.LENGTH_SHORT).show();
-////                            // Nếu không lặp lại, phát bài tiếp theo
-////                            AlbumTrackList nextTrack = getNextTrack();
-////                            if (nextTrack != null) {
-////                                playMusic(nextTrack.getCurrentSongUrl());
-////                                songPlayerWidget.setSongPlayerView(
-////                                        nextTrack.getCurrentSongName(),
-////                                        nextTrack.getCurrentSongArtist(),
-////                                        nextTrack.getCurrentSongImage(),
-////                                        playFunction,
-////                                        loopFunction
-////                                );
-////                            }
-//                            break;
-//                        case 2: // Repeat
-//                            playMusic(currentSongUrl); // Phát lại bài hiện tại
-//                            break;
-//                        case 3: // Shuffle
-////                            AlbumTrackList randomTrack = getRandomItem(albumTrackLists);
-////                            if (randomTrack != null) {
-////                                playMusic(randomTrack.getCurrentSongUrl());
-////                                songPlayerWidget.setSongPlayerView(
-////                                        randomTrack.getCurrentSongName(),
-////                                        randomTrack.getCurrentSongArtist(),
-////                                        randomTrack.getCurrentSongImage(),
-////                                        playFunction,
-////                                        loopFunction
-////                                );
-////                            }
-//                            break;
-//                    }
-//                });
-//                mediaPlayer.prepareAsync();  // Prepare the song
-//                mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());  // Start when prepared
-//            } catch (Exception e) {
-//                Log.e("MediaPlayer", "Error setting data source", e);
-//            }
-//        } else {
-//            Log.e("MediaPlayer", "Current song URL is null");
-//        }
-//    }
-
 
 
     @Override

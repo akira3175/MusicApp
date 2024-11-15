@@ -79,6 +79,7 @@ public class ListMusicActivity extends AppCompatActivity {
             public void onItemClick(Track track, int index) {
                 // Khi một bài hát được nhấn, phát nhạc trực tiếp
                 currentTrackIndex = index;
+                showLoadingScreen();
                 musicController.playTrack(track);
 
                 // Cập nhật thông tin bài hát đang phát trên SongPlayerWidget
@@ -95,7 +96,9 @@ public class ListMusicActivity extends AppCompatActivity {
         trackList.setAdapter(trackAdapter);
         setupScrollListener();
 
-        musicController = new MusicController(this);
+        musicController = new MusicController(this, (mediaPlayer) -> {
+            hideLoadingScreen();
+        });
         songPlayerWidget = new SongPlayerWidget(ListMusicActivity.this);
         listContent = findViewById(R.id.song_player_widget_container);
         listContent.addView(songPlayerWidget);
@@ -113,11 +116,11 @@ public class ListMusicActivity extends AppCompatActivity {
                         playFunction,
                         loopFunction
                 );
+                hideLoadingScreen();
             } else {
                 Log.d("ListMusicActivity", "Music is not playing");
             }
         });
-
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -182,7 +185,7 @@ public class ListMusicActivity extends AppCompatActivity {
                     }
 
                     hideLoadingScreen(); // Ẩn loading screen sau khi hết delay
-                }, 1000); // Độ trễ 1 giây
+                }, 0); // Độ trễ 1 giây
             }
 
             @Override
@@ -246,6 +249,7 @@ public class ListMusicActivity extends AppCompatActivity {
             if (previousTrack != null) {
                 playFunction = 2;
                 currentTrackIndex = getPreviousTrackIndex();
+                showLoadingScreen();
                 musicController.playTrack(tracks.get(currentTrackIndex));
                 songPlayerWidget.setSongPlayerView(
                         previousTrack.getCurrentSongName(),
@@ -265,6 +269,7 @@ public class ListMusicActivity extends AppCompatActivity {
             if (nextTrack != null) {
                 playFunction = 2;
                 currentTrackIndex = getNextTrackIndex();
+                showLoadingScreen();
                 musicController.playTrack(tracks.get(currentTrackIndex));
                 songPlayerWidget.setSongPlayerView(
                         nextTrack.getCurrentSongName(),

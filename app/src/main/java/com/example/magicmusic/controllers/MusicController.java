@@ -15,6 +15,7 @@ public class MusicController {
   private boolean isBound = false;
   private final Context context;
   private OnServiceConnectedListener onServiceConnectedListener;
+  private MediaPlayer.OnPreparedListener onPreparedListener = (mediaPlayer) -> {};
 
   public interface OnServiceConnectedListener {
     void onServiceConnected();
@@ -31,6 +32,13 @@ public class MusicController {
     context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
   }
 
+  public MusicController(Context context, MediaPlayer.OnPreparedListener onPreparedListener) {
+    this.context = context;
+    Intent intent = new Intent(context, MediaPlayerService.class);
+    context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    this.onPreparedListener = onPreparedListener;
+  }
+
   private final ServiceConnection serviceConnection = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -40,6 +48,7 @@ public class MusicController {
       if (onServiceConnectedListener != null) {
         onServiceConnectedListener.onServiceConnected();
       }
+      mediaPlayerService.setOnPreparedListener(onPreparedListener);
     }
 
     @Override
@@ -47,12 +56,6 @@ public class MusicController {
       isBound = false;
     }
   };
-
-  public void playTrack(String url) {
-    if (mediaPlayerService != null) {
-      mediaPlayerService.playMusic(url);
-    }
-  }
 
   public void playTrack(Track track) {
     if (mediaPlayerService != null) {
@@ -91,6 +94,12 @@ public class MusicController {
 
   public Track getCurrentTrack() {
     return mediaPlayerService != null ? mediaPlayerService.getCurrentTrack() : null;
+  }
+
+  public void setOnPreparedListener(MediaPlayer.OnPreparedListener listener) {
+    if (onPreparedListener != null) {
+      onPreparedListener = listener;
+    }
   }
 
 }
