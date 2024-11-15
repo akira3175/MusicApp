@@ -242,7 +242,7 @@ public class ListMusicActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentTrackIndex != -1) {
+                if (currentTrackIndex != -1 || musicController.getCurrentTrack() != null) {
                     if (musicController.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
                         playFunction = 1;
                         musicController.pauseTrack();
@@ -319,7 +319,7 @@ public class ListMusicActivity extends AppCompatActivity {
                     playNextTrack();
                     break;
                 case 2: // Repeat
-                    //plat current track
+                    //play current track
                     musicController.playTrack(tracks.get(currentTrackIndex));
                     break;
                 case 3: // Shuffle

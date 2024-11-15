@@ -42,7 +42,7 @@ public class MediaPlayerService extends Service {
   public void onCreate() {
     super.onCreate();
     mediaPlayer = new MediaPlayer();
-    createNotificationChannel();
+//    createNotificationChannel();
   }
 
   @Nullable
@@ -51,32 +51,31 @@ public class MediaPlayerService extends Service {
     return binder;
   }
 
-  @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
-    if (intent != null) {
-      String action = intent.getAction();
-      if ("PLAY".equals(action)) {
-        resumeMusic();
-      } else if ("PAUSE".equals(action)) {
-        pauseMusic();
-      }
-    }
-    return START_STICKY;
-  }
+//  @Override
+//  public int onStartCommand(Intent intent, int flags, int startId) {
+//    if (intent != null) {
+//      String action = intent.getAction();
+//      if ("PLAY".equals(action)) {
+//        resumeMusic();
+//      } else if ("PAUSE".equals(action)) {
+//        pauseMusic();
+//      }
+//    }
+//    return START_STICKY;
+//  }
 
   public void playMusic(Track track) {
     currentTrack = track;
-    showNotification();
-    if (isPlaying) {
+//    showNotification();
+    if (mediaPlayer.isPlaying()) {
       mediaPlayer.stop();
-      mediaPlayer.reset();
     }
+    mediaPlayer.reset();
     try {
       mediaPlayer.setDataSource(track.getAudio());
       mediaPlayer.prepareAsync();
       mediaPlayer.setOnPreparedListener(mp -> {
         mp.start();
-        isPlaying = true;
         onPreparedListener.onPrepared(mp);
       });
     } catch (IOException e) {
@@ -86,17 +85,16 @@ public class MediaPlayerService extends Service {
 
   public void playMusic(FavoriteTrackDTO ftrack) {
     currentfTrack = ftrack;
-    showNotification();
-    if (isPlaying) {
+//    showNotification();
+    if (mediaPlayer.isPlaying()) {
       mediaPlayer.stop();
-      mediaPlayer.reset();
     }
+    mediaPlayer.reset();
     try {
       mediaPlayer.setDataSource(ftrack.getSongUrl());
       mediaPlayer.prepareAsync();
       mediaPlayer.setOnPreparedListener(mp -> {
         mp.start();
-        isPlaying = true;
         onPreparedListener.onPrepared(mp);
       });
     } catch (IOException e) {
@@ -107,14 +105,12 @@ public class MediaPlayerService extends Service {
   public void pauseMusic() {
     if (mediaPlayer != null && mediaPlayer.isPlaying()) {
       mediaPlayer.pause();
-      isPlaying = false;
     }
   }
 
   public void resumeMusic() {
     if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
       mediaPlayer.start();
-      isPlaying = true;
     }
   }
 
@@ -122,13 +118,12 @@ public class MediaPlayerService extends Service {
     if (mediaPlayer != null) {
       mediaPlayer.stop();
       mediaPlayer.reset();
-      isPlaying = false;
     }
     currentTrack = null;
   }
 
   public boolean isPlaying() {
-    return isPlaying;
+    return mediaPlayer.isPlaying();
   }
 
   @Override
@@ -156,40 +151,38 @@ public class MediaPlayerService extends Service {
     return currentTrack;
   }
 
-  private void createNotificationChannel() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      NotificationChannel channel = new NotificationChannel(
-              CHANNEL_ID,
-              "Music Player",
-              NotificationManager.IMPORTANCE_LOW
-      );
-      NotificationManager manager = getSystemService(NotificationManager.class);
-      manager.createNotificationChannel(channel);
-    }
-  }
+//  private void createNotificationChannel() {
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      NotificationChannel channel = new NotificationChannel(
+//              CHANNEL_ID,
+//              "Music Player",
+//              NotificationManager.IMPORTANCE_LOW
+//      );
+//      NotificationManager manager = getSystemService(NotificationManager.class);
+//      manager.createNotificationChannel(channel);
+//    }
+//  }
 
-  private void showNotification() {
-    Intent playIntent = new Intent(this, NotificationReceiver.class).setAction("PLAY");
-    PendingIntent playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_MUTABLE);
-
-    Intent pauseIntent = new Intent(this, NotificationReceiver.class).setAction("PAUSE");
-    PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_MUTABLE);
-
-    // Xây dựng Notification với MediaStyle
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_music_note)
-            .setContentTitle("Music Player")
-            .setContentText(isPlaying ? "Playing" : "Paused")
-            .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pause" : "Play",
-                    isPlaying ? pausePendingIntent : playPendingIntent)
-            .setStyle(new MediaStyle().setShowActionsInCompactView(0)) // Sử dụng androidx.media.app.NotificationCompat.MediaStyle
-            .setOngoing(isPlaying)
-            .setAutoCancel(false);
-
-    startForeground(NOTIFICATION_ID, builder.build());
-
-    startForeground(NOTIFICATION_ID, builder.build());
-  }
+//  private void showNotification() {
+//    Intent playIntent = new Intent(this, NotificationReceiver.class).setAction("PLAY");
+//    PendingIntent playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_MUTABLE);
+//
+//    Intent pauseIntent = new Intent(this, NotificationReceiver.class).setAction("PAUSE");
+//    PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_MUTABLE);
+//
+//    // Xây dựng Notification với MediaStyle
+//    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+//            .setSmallIcon(R.drawable.ic_music_note)
+//            .setContentTitle("Music Player")
+//            .setContentText(isPlaying ? "Playing" : "Paused")
+//            .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pause" : "Play",
+//                    isPlaying ? pausePendingIntent : playPendingIntent)
+//            .setStyle(new MediaStyle().setShowActionsInCompactView(0)) // Sử dụng androidx.media.app.NotificationCompat.MediaStyle
+//            .setOngoing(isPlaying)
+//            .setAutoCancel(false);
+//
+//    startForeground(NOTIFICATION_ID, builder.build());
+//  }
 
   public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
     this.onPreparedListener = onPreparedListener;

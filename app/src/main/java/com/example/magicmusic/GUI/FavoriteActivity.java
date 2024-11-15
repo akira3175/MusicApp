@@ -196,7 +196,7 @@ public class FavoriteActivity extends AppCompatActivity {
                     if (favoriteTrackLists != null && !favoriteTrackLists.isEmpty()) {
                         playFunction = 2;
                         currentSongUrl = favoriteTrackLists.get(0).getSongUrl(); // Cập nhật bài đầu tiên của favoriteTrackLists
-                        playMusic(downloadedSongs.get(0));
+                        playMusic(favoriteTrackLists.get(0));
                         songPlayerWidget.setSongPlayerView(
                                 favoriteTrackLists.get(0).getSongName(),
                                 favoriteTrackLists.get(0).getSongArtist(),
@@ -477,7 +477,7 @@ public class FavoriteActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSongUrl != null) {
+                if (currentSongUrl != null || musicController.getCurrentTrack() != null || musicController.getCurrentfTrack() != null) {
                     if (mediaPlayer.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
                         playFunction = 1;
                         pauseMusic();

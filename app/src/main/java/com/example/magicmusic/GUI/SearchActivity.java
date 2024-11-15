@@ -218,7 +218,7 @@ public class SearchActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentTrackIndex != -1) {
+                if (currentTrackIndex != -1 || musicController.getCurrentTrack() != null || musicController.getCurrentfTrack() != null) {
                     if (musicController.isPlaying() && playFunction == 2) {      // Từ Play sang Pause
                         playFunction = 1;
                         musicController.pauseTrack();
