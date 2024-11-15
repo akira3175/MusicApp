@@ -288,6 +288,8 @@ public class FavoriteActivity extends AppCompatActivity {
         songContentWidget.setSongArtist(track.getSongArtist());
         songContentWidget.setSongImageUrl(track.getSongImageUrl());
         songContentWidget.setSongUrl(track.getSongUrl());
+        songContentWidget.setSongDownloaded(track.isDownloaded());
+        Log.d("data", ""+track.isDownloaded());
 
         // Tạo MediaPlayer và lấy thời gian bài hát
         setupMediaPlayerForSong(songContentWidget, track);
@@ -300,6 +302,12 @@ public class FavoriteActivity extends AppCompatActivity {
 
         // Xử lý sự kiện nhấn nút Download
         songContentWidget.getSongDownloadedButton().setOnClickListener(v -> handleDownload(songContentWidget));
+
+        if (track.isDownloaded()) {
+            songContentWidget.getSongDownloadedButton().setClickable(false);
+        } else {
+            songContentWidget.getSongDownloadedButton().setClickable(true);
+        }
     }
 
     private void setupMediaPlayerForSong(SongContentWidget songContentWidget, FavoriteTrackDTO track) {
@@ -354,20 +362,50 @@ public class FavoriteActivity extends AppCompatActivity {
         }
     }
 
+    // Phương thức xử lý tải xuống
     private void handleDownload(SongContentWidget songContentWidget) {
+        String songUrl = songContentWidget.getSongUrl();
         String songName = songContentWidget.getSongName() + " - " + songContentWidget.getSongArtist() + ".mp3";
         Toast.makeText(FavoriteActivity.this, "Đang tải bài hát: " + songName + " ...", Toast.LENGTH_SHORT).show();
+
+        // Kiểm tra xem bài hát đã tải xuống chưa
         if (!downloadAdapter.checkFileInDownloads(FavoriteActivity.this, songName)) {
+            // Bài hát chưa tải xuống, thực hiện tải xuống
             songContentWidget.setSongDownloaded(true);
-            Log.d("Download", "Download song: " + songContentWidget.getSongUrl());
+            Log.d("Download", "Downloading song: " + songContentWidget.getSongUrl());
+
+            // Tải nhạc và cập nhật cơ sở dữ liệu
             executorService.execute(() -> {
+                // Tải và đổi tên bài hát
                 downloadAdapter.downloadAndRenameSong(FavoriteActivity.this, songContentWidget.getSongUrl(), songName);
+                // Sau khi tải xong, cập nhật lại thông tin bài hát đã tải xuống
+                runOnUiThread(() -> {
+                    songContentWidget.setSongDownloaded(true); // Cập nhật trạng thái tải xuống
+                    updateDownloadedTrackInDatabase(songUrl); // Cập nhật cơ sở dữ liệu
+                });
             });
         } else {
-            songContentWidget.setSongDownloaded(false);
+            // Nếu bài hát đã tải xuống, cập nhật giao diện và cơ sở dữ liệu
+            songContentWidget.setSongDownloaded(true);
+            updateDownloadedTrackInDatabase(songUrl);
         }
     }
 
+    // Phương thức cập nhật trạng thái bài hát đã tải xuống trong cơ sở dữ liệu
+    private void updateDownloadedTrackInDatabase(String songUrl) {
+        // Thực thi cập nhật trên một luồng phụ
+        executorService.execute(() -> {
+            FavoriteTrackDatabase db = DatabaseInstance.getDatabase(FavoriteActivity.this);
+            // Cập nhật trạng thái đã tải xuống của bài hát
+            db.favoriteTrackDao().updateDownloadedStatus(songUrl, true);
+            FavoriteTrackDTO track = db.favoriteTrackDao().getTrackByUrl(songUrl);
+            if (track != null) {
+                Log.d("Database", "Song with URL: " + track.getSongUrl() + " isDownloaded: " + track.isDownloaded());
+            } else {
+                Log.d("Database", "Song not found in database for URL: " + songUrl);
+            }
+        });
+    }
 
     private void Logic() {
         playButton = songPlayerWidget.getRootView().findViewById(R.id.play_button);
