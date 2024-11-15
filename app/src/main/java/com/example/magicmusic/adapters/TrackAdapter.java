@@ -97,7 +97,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
               boolean getFavFlag2 = !getFavFlag;
               favButton.setImageResource(getFavFlag2 ? R.drawable.ic_favorite : R.drawable.ic_non_favorite);
 
-              FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), getFavFlag);
+              FavoriteTrackDTO f = new FavoriteTrackDTO(track.getId(), track.getAudio(), track.getName(), track.getArtist_name(), track.getImage(), getFavFlag2);
               if (getFavFlag2)
                 insert(db, f);
               else
