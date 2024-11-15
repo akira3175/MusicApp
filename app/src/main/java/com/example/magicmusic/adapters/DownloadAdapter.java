@@ -27,7 +27,7 @@ import android.app.Activity;
 
 public class DownloadAdapter {
     public void downloadAndRenameSong(Activity activity, String songUrl, String newFileName) {
-        File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
         if (musicDir != null && !musicDir.exists()) {
             musicDir.mkdirs();
         }
@@ -107,7 +107,7 @@ public class DownloadAdapter {
 
         ContentResolver contentResolver = context.getContentResolver();
         String selection = MediaStore.Audio.Media.RELATIVE_PATH + " LIKE ?"; // Lọc các bài hát trong thư mục Downloads
-        String[] selectionArgs = new String[]{"%Download%"};
+        String[] selectionArgs = new String[]{"%Music%"};
 
         List<FavoriteTrackDTO> songNames = new ArrayList<>(); // Danh sách để lưu tên bài hát
 
