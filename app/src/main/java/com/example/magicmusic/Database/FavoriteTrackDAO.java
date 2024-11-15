@@ -35,4 +35,14 @@ public interface FavoriteTrackDAO {
     @Query("SELECT * FROM FavoriteTrackDatabase WHERE songId = :trackId")
     FavoriteTrackDTO getFavoriteTrack(long trackId);
 
+    @Query("SELECT * FROM FavoriteTrackDatabase WHERE song_name = :songName LIMIT 1")
+    FavoriteTrackDTO getTrackByName(String songName);
+
+    // Cập nhật trạng thái tải xuống của bài hát bằng songUrl
+    @Query("UPDATE FavoriteTrackDatabase SET is_downloaded = :status WHERE song_url = :songUrl")
+    void updateDownloadedStatus(String songUrl, boolean status);
+
+    // Lấy thông tin bài hát từ songUrl
+    @Query("SELECT * FROM FavoriteTrackDatabase WHERE song_url = :songUrl LIMIT 1")
+    FavoriteTrackDTO getTrackByUrl(String songUrl);
 }

@@ -26,6 +26,9 @@ public class FavoriteTrackDTO {
     @ColumnInfo(name = "is_favorite")
     private boolean isFavorite;
 
+    @ColumnInfo(name = "is_downloaded")
+    private boolean isDownloaded;
+
     public String text;
 
     public FavoriteTrackDTO() {
@@ -81,6 +84,10 @@ public class FavoriteTrackDTO {
         return this.isFavorite;
     }
 
+    public boolean isDownloaded() {
+        return isDownloaded;
+    }
+
     public String getText() {
         return this.text;
     }
@@ -107,6 +114,10 @@ public class FavoriteTrackDTO {
 
     public void setIsFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public void setDownloaded(boolean downloaded) {
+        isDownloaded = downloaded;
     }
 
     public void setText(String text) {
